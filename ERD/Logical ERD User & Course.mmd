@@ -1,0 +1,212 @@
+erDiagram
+    USER {
+        int id PK
+        string name
+        string email UK
+        string password_hash
+        string profile_picture_url
+        text bio
+        boolean is_active
+        datetime last_login
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    USER_PHONE {
+        int id PK
+        int user_id FK
+        string phone_number
+        enum type "primary,secondary"
+        boolean is_verified
+        boolean is_default
+        datetime created_at
+    }
+
+    SESSION {
+        int id PK
+        int user_id FK
+        string token_hash UK
+        string refresh_token_hash UK
+        string ip_address
+        string user_agent
+        datetime created_at
+        datetime expires_at
+        datetime refresh_expires_at
+        datetime last_activity_at
+        boolean is_active
+    }
+
+    ADDRESS {
+        int id PK
+        int user_id FK
+        enum type "billing,home,work"
+        string street_line_1
+        string street_line_2
+        string city
+        string state_province
+        string postal_code
+        string country
+        string contact_phone
+        boolean is_default
+        datetime created_at
+        datetime deleted_at
+    }
+
+    TEACHER_REQUEST {
+        int id PK
+        int user_id FK
+        enum status "pending,approved,rejected,requires_more_info"
+        text message
+        text admin_notes
+        text rejection_reason
+        datetime submitted_at
+        datetime processed_at
+        int processed_by FK
+    }
+
+    TEACHER_REQUEST_DOCUMENT {
+        int id PK
+        int request_id FK
+        enum document_type "cv,certificate,portfolio_link"
+        string value
+        datetime uploaded_at
+    }
+
+    ROLE {
+        int id PK
+        string name UK
+        text description
+        boolean is_active
+        datetime created_at
+    }
+
+    PERMISSION {
+        int id PK
+        string name UK
+        text description
+        string resource
+        boolean is_active
+        datetime created_at
+    }
+
+    ROLE_PERMISSION {
+        int id PK
+        int role_id FK
+        int permission_id FK
+        boolean is_active
+        datetime granted_at
+    }
+
+    USER_ROLE {
+        int id PK
+        int user_id FK
+        int role_id FK
+        datetime assigned_at
+        datetime expires_at
+    }
+
+    USER_PERMISSION {
+        int id PK
+        int user_id FK
+        int permission_id FK
+        datetime granted_at
+        datetime expires_at
+        int granted_by FK
+    }
+
+    CATEGORY {
+        int id PK
+        string name
+        string slug UK
+        text description
+        string image_url
+        int position
+        int parent_category_id FK
+        boolean is_active
+        datetime created_at
+    }
+
+    COURSE {
+        int id PK
+        string title
+        string slug UK
+        text description
+        string course_image_url
+        string thumbnail_url
+        decimal price
+        int created_by FK
+        int category_id FK
+        enum level "beginner,intermediate,advanced"
+        enum language "ar,en"
+        enum status "draft,pending_review,published,archived"
+        boolean is_published
+        int approved_by FK
+        datetime published_at
+        datetime archived_at
+        int total_duration_minutes
+        int enrollment_count
+        decimal average_rating
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    COURSE_REQUIREMENT {
+        int id PK
+        int course_id FK
+        string description
+        int display_order
+    }
+
+    COURSE_LEARNING_OUTCOME {
+        int id PK
+        int course_id FK
+        string description
+        int display_order
+    }
+
+    SECTION {
+        int id PK
+        int course_id FK
+        string title
+        text description
+        int position
+        boolean is_locked
+        datetime created_at
+    }
+
+    SECTION_ITEM {
+        int id PK
+        int section_id FK
+        enum item_type "video,quiz,document,live_session"
+        int item_id
+        int position
+        boolean is_preview_allowed
+        boolean is_mandatory
+        datetime available_from
+        datetime available_until
+    }
+
+    %% Relationships
+    USER ||--o{ USER_PHONE : has
+    USER ||--o{ SESSION : has
+    USER ||--o{ ADDRESS : has
+    USER ||--o{ TEACHER_REQUEST : submits
+    USER ||--|| TEACHER_REQUEST : processes
+    TEACHER_REQUEST ||--o{ TEACHER_REQUEST_DOCUMENT : includes
+    
+    USER }o--o{ USER_ROLE : "has"
+    ROLE ||--o{ USER_ROLE : assigns
+    ROLE }o--o{ ROLE_PERMISSION : grants
+    PERMISSION ||--o{ ROLE_PERMISSION : in
+    USER ||--o{ USER_PERMISSION : has_direct
+    PERMISSION ||--o{ USER_PERMISSION : granted_to
+    
+    CATEGORY ||--o{ COURSE : includes
+    CATEGORY }o--o{ CATEGORY : has_subcategory
+    USER ||--o{ COURSE : creates
+    COURSE ||--o{ COURSE_REQUIREMENT : has
+    COURSE ||--o{ COURSE_LEARNING_OUTCOME : has
+    COURSE ||--o{ SECTION : organized_in
+    SECTION ||--o{ SECTION_ITEM : contains

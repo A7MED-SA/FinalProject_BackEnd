@@ -1,0 +1,180 @@
+erDiagram
+    VIDEO {
+        int id PK
+        string title
+        string url
+        string thumbnail_url
+        enum provider "youtube,vimeo,cloudflare_stream"
+        string provider_video_id
+        enum quality "720p,1080p,4k"
+        int duration_seconds
+        text transcript
+        boolean has_subtitles
+        int skip_intro_seconds
+        int skip_outro_seconds
+        enum status "processing,ready,failed"
+        int view_count
+        datetime created_at
+    }
+
+    DOCUMENT {
+        int id PK
+        string title
+        text description
+        string file_url
+        enum file_type "pdf,zip,doc,ppt,excel"
+        int file_size_kb
+        int download_count
+        datetime uploaded_at
+        datetime created_at
+    }
+
+    VIDEO_COMMENT {
+        int id PK
+        int video_id FK
+        int user_id FK
+        int parent_comment_id FK
+        text content
+        boolean is_edited
+        int likes_count
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    COMMENT_LIKE {
+        int id PK
+        int comment_id FK
+        int user_id FK
+        datetime created_at
+    }
+
+    QUIZ {
+        int id PK
+        string title
+        text description
+        int duration_minutes
+        int passing_score_percent
+        int max_attempts
+        boolean shuffle_questions
+        boolean shuffle_options
+        boolean show_results_immediately
+        boolean allow_review
+        datetime available_from
+        datetime available_until
+        datetime created_at
+    }
+
+    QUESTION {
+        int id PK
+        int quiz_id FK
+        text question_text
+        enum type "multiple_choice,true_false,short_answer"
+        int points
+        text explanation
+        int position
+    }
+
+    OPTION {
+        int id PK
+        int question_id FK
+        text option_text
+        boolean is_correct
+        int position
+    }
+
+    QUIZ_ATTEMPT {
+        int id PK
+        int enrollment_id FK
+        int quiz_id FK
+        int score
+        int max_score
+        enum status "in_progress,submitted,graded"
+        datetime started_at
+        datetime submitted_at
+        int attempt_number
+        int time_taken_seconds
+    }
+
+    USER_ANSWER {
+        int id PK
+        int attempt_id FK
+        int question_id FK
+        int selected_option_id FK
+        text answer_text
+        boolean is_correct
+        int points_earned
+    }
+
+    LIVE_SESSION {
+        int id PK
+        int course_id FK
+        string title
+        text description
+        datetime scheduled_start
+        datetime scheduled_end
+        datetime actual_start
+        datetime actual_end
+        string meeting_url
+        string meeting_password
+        enum status "scheduled,live,ended,cancelled"
+        int max_attendees
+        boolean is_recorded
+        string recording_url
+        datetime created_at
+    }
+
+    LIVE_ATTENDANCE {
+        int id PK
+        int session_id FK
+        int user_id FK
+        datetime joined_at
+        datetime left_at
+        int duration_minutes
+    }
+
+    ENROLLMENT {
+        int id PK
+        int user_id FK
+        int course_id FK
+        datetime enrolled_at
+        enum status "in_progress,completed,expired,refunded"
+        datetime completed_at
+        datetime last_accessed_at
+        decimal progress_percentage
+        int certificate_id FK
+        enum source "purchase,gift,admin_grant,coupon"
+        datetime access_expires_at
+        boolean is_refunded
+    }
+
+    CONTENT_PROGRESS {
+        int id PK
+        int enrollment_id FK
+        enum content_type "video,quiz,document,live_session"
+        int content_id
+        boolean is_completed
+        int watch_time_seconds
+        int attempts_count
+        decimal completion_percentage
+        json metadata
+        datetime last_accessed_at
+        datetime completed_at
+    }
+
+    %% Relationships
+    VIDEO ||--o{ VIDEO_COMMENT : has
+    VIDEO_COMMENT }o--o{ VIDEO_COMMENT : replies_to
+    VIDEO_COMMENT ||--o{ COMMENT_LIKE : receives
+    
+    QUIZ ||--o{ QUESTION : contains
+    QUESTION ||--o{ OPTION : has
+    QUIZ ||--o{ QUIZ_ATTEMPT : attempted_in
+    QUIZ_ATTEMPT ||--o{ USER_ANSWER : includes
+    QUESTION ||--o{ USER_ANSWER : answered_in
+    OPTION }o--|| USER_ANSWER : selected_as
+    
+    LIVE_SESSION ||--o{ LIVE_ATTENDANCE : tracks
+    
+    ENROLLMENT ||--o{ CONTENT_PROGRESS : tracks
+    ENROLLMENT ||--o{ QUIZ_ATTEMPT : makes

@@ -1,0 +1,270 @@
+erDiagram
+    WISHLIST {
+        int id PK
+        int user_id FK
+        int course_id FK
+        datetime added_at
+    }
+
+    CART {
+        int id PK
+        int user_id UK
+        string session_id
+        datetime created_at
+        datetime updated_at
+        datetime expires_at
+    }
+
+    CART_ITEM {
+        int id PK
+        int cart_id FK
+        int course_id FK
+        decimal price_snapshot
+        datetime added_at
+    }
+
+    REVIEW {
+        int id PK
+        int user_id FK
+        int course_id FK
+        int rating
+        text comment
+        enum status "pending,approved,rejected"
+        boolean is_verified
+        int helpful_count
+        int not_helpful_count
+        datetime created_at
+        datetime updated_at
+        datetime moderated_at
+        int moderated_by FK
+        datetime deleted_at
+    }
+
+    REVIEW_HELPFUL {
+        int id PK
+        int review_id FK
+        int user_id FK
+        boolean is_helpful
+        datetime created_at
+    }
+
+    CERTIFICATE {
+        int id PK
+        int user_id FK
+        int course_id FK
+        string certificate_url
+        string verification_code UK
+        datetime issued_at
+        datetime expires_at
+    }
+
+    COUPON {
+        int id PK
+        string code UK
+        enum type "percentage,fixed"
+        decimal value
+        decimal max_discount_amount
+        decimal minimum_purchase_amount
+        enum applicable_to "all,specific_courses,category"
+        int usage_limit
+        int user_limit_per_user
+        int times_used
+        boolean is_public
+        datetime valid_from
+        datetime valid_until
+        boolean is_active
+        int created_by FK
+        datetime created_at
+    }
+
+    COUPON_COURSE {
+        int id PK
+        int coupon_id FK
+        int course_id FK
+    }
+
+    COUPON_USAGE {
+        int id PK
+        int coupon_id FK
+        int user_id FK
+        int order_id FK
+        datetime used_at
+    }
+
+    ORDER {
+        int id PK
+        string order_number UK
+        int user_id FK
+        int billing_address_id FK
+        decimal subtotal_amount
+        int coupon_id FK
+        decimal discount_amount
+        decimal tax_amount
+        decimal final_amount
+        string currency
+        enum status "pending,completed,failed,refunded"
+        text notes
+        datetime created_at
+        datetime updated_at
+    }
+
+    ORDER_ITEM {
+        int id PK
+        int order_id FK
+        int course_id FK
+        decimal price_at_purchase
+        datetime added_at
+    }
+
+    PAYMENT_METHOD {
+        int id PK
+        string name
+        string provider
+        enum type "credit_card,digital_wallet,bank_transfer"
+        boolean is_active
+        json configuration
+    }
+
+    PAYMENT {
+        int id PK
+        int user_id FK
+        int order_id FK
+        int payment_method_id FK
+        decimal amount
+        enum currency "EGP,USD,EUR"
+        enum status "succeeded,pending,failed"
+        string transaction_ref UK
+        string gateway_response
+        datetime paid_at
+        datetime created_at
+    }
+
+    REFUND {
+        int id PK
+        int payment_id FK
+        decimal amount
+        text reason
+        enum status "requested,approved,rejected,processed"
+        datetime requested_at
+        datetime processed_at
+        int processed_by FK
+    }
+
+    TRANSACTION_LOG {
+        int id PK
+        int payment_id FK
+        string action
+        string status
+        text details
+        datetime created_at
+    }
+
+    FILE {
+        int id PK
+        int uploaded_by FK
+        string file_path
+        string file_name
+        string original_name
+        string file_type
+        string mime_type
+        int size_kb
+        enum entity_type "profile_picture,course_image,certificate,document,video_thumbnail"
+        int entity_id
+        boolean is_public
+        datetime uploaded_at
+        datetime deleted_at
+    }
+
+    NOTIFICATION {
+        int id PK
+        int user_id FK
+        enum type "course,payment,system,message"
+        string title
+        text message
+        string link_url
+        boolean is_read
+        datetime created_at
+        datetime read_at
+    }
+
+    MESSAGE {
+        int id PK
+        int sender_id FK
+        int receiver_id FK
+        text content
+        datetime sent_at
+        boolean is_read
+        datetime read_at
+    }
+
+    ANNOUNCEMENT {
+        int id PK
+        string title
+        text content
+        enum target "all,students,teachers,admins"
+        int created_by FK
+        boolean is_active
+        datetime published_at
+        datetime expires_at
+    }
+
+    REPORT {
+        int id PK
+        int reporter_id FK
+        enum entity_type "course,review,comment,user"
+        int entity_id
+        enum reason "spam,inappropriate,copyright,other"
+        text description
+        enum status "pending,resolved,rejected"
+        datetime created_at
+        datetime resolved_at
+        int resolved_by FK
+    }
+
+    ACTIVITY_LOG {
+        int id PK
+        int user_id FK
+        string action
+        enum entity_type "user,course,review,order"
+        int entity_id
+        text details
+        string ip_address
+        datetime created_at
+    }
+
+    COURSE_LOG {
+        int id PK
+        int course_id FK
+        int user_id FK
+        enum action "created,updated,published,archived"
+        text details
+        datetime timestamp
+    }
+
+    SYSTEM_SETTING {
+        int id PK
+        string setting_group "general,payment,email,notification"
+        string key UK
+        text value
+        enum data_type "string,integer,boolean,json"
+        text description
+        boolean is_public
+        datetime updated_at
+        int updated_by FK
+    }
+
+    %% Relationships
+    CART ||--o{ CART_ITEM : contains
+    
+    REVIEW ||--o{ REVIEW_HELPFUL : rated_by
+    
+    COUPON ||--o{ COUPON_COURSE : applies_to
+    COUPON ||--o{ COUPON_USAGE : tracks
+    COUPON ||--o{ ORDER : applied_to
+    
+    ORDER ||--o{ ORDER_ITEM : contains
+    ORDER ||--o{ PAYMENT : paid_by
+    
+    PAYMENT_METHOD ||--o{ PAYMENT : used_for
+    PAYMENT ||--o{ TRANSACTION_LOG : logged_in
+    PAYMENT ||--o{ REFUND : may_have

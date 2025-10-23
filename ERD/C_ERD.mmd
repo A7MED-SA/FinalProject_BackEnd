@@ -1,0 +1,113 @@
+
+erDiagram
+    %% Core User Management
+    USER ||--o{ USER_PHONE : "has"
+    USER ||--o{ SESSION : "has"
+    USER ||--o{ ADDRESS : "has"
+    USER ||--o{ TEACHER_REQUEST : "submits"
+    USER ||--|| TEACHER_REQUEST : "processes"
+    TEACHER_REQUEST ||--o{ TEACHER_REQUEST_DOCUMENT : "includes"
+    
+    %% Role & Permission System
+    USER }o--o{ USER_ROLE : "assigned"
+    ROLE ||--o{ USER_ROLE : "has"
+    ROLE }o--o{ ROLE_PERMISSION : "grants"
+    PERMISSION ||--o{ ROLE_PERMISSION : "included in"
+    USER ||--o{ USER_PERMISSION : "has direct"
+    PERMISSION ||--o{ USER_PERMISSION : "granted to"
+    
+    %% Course Structure
+    CATEGORY ||--o{ COURSE : "contains"
+    CATEGORY }o--o{ CATEGORY : "has subcategory"
+    USER ||--o{ COURSE : "creates"
+    COURSE ||--o{ COURSE_REQUIREMENT : "has"
+    COURSE ||--o{ COURSE_LEARNING_OUTCOME : "defines"
+    COURSE ||--o{ SECTION : "organized in"
+    SECTION ||--o{ SECTION_ITEM : "contains"
+    
+    %% Learning Content
+    SECTION_ITEM }o--|| VIDEO : "references"
+    SECTION_ITEM }o--|| QUIZ : "references"
+    SECTION_ITEM }o--|| DOCUMENT : "references"
+    SECTION_ITEM }o--|| LIVE_SESSION : "references"
+    
+    %% Video Interactions
+    VIDEO ||--o{ VIDEO_COMMENT : "has"
+    USER ||--o{ VIDEO_COMMENT : "writes"
+    VIDEO_COMMENT }o--o{ VIDEO_COMMENT : "replies to"
+    VIDEO_COMMENT ||--o{ COMMENT_LIKE : "receives"
+    USER ||--o{ COMMENT_LIKE : "gives"
+    
+    %% Quiz System
+    QUIZ ||--o{ QUESTION : "contains"
+    QUESTION ||--o{ OPTION : "has"
+    QUIZ ||--o{ QUIZ_ATTEMPT : "attempted in"
+    ENROLLMENT ||--o{ QUIZ_ATTEMPT : "makes"
+    QUIZ_ATTEMPT ||--o{ USER_ANSWER : "includes"
+    QUESTION ||--o{ USER_ANSWER : "answered in"
+    OPTION }o--|| USER_ANSWER : "selected as"
+    
+    %% Live Sessions
+    LIVE_SESSION ||--o{ LIVE_ATTENDANCE : "tracks"
+    USER ||--o{ LIVE_ATTENDANCE : "attends"
+    COURSE ||--o{ LIVE_SESSION : "schedules"
+    
+    %% Enrollment & Progress
+    USER ||--o{ ENROLLMENT : "enrolls in"
+    COURSE ||--o{ ENROLLMENT : "has"
+    ENROLLMENT ||--o{ CONTENT_PROGRESS : "tracks"
+    
+    %% Shopping & Wishlist
+    USER ||--o{ WISHLIST : "maintains"
+    COURSE ||--o{ WISHLIST : "added to"
+    USER ||--|| CART : "owns"
+    CART ||--o{ CART_ITEM : "contains"
+    COURSE ||--o{ CART_ITEM : "in"
+    
+    %% Reviews & Ratings
+    USER ||--o{ REVIEW : "writes"
+    COURSE ||--o{ REVIEW : "receives"
+    REVIEW ||--o{ REVIEW_HELPFUL : "rated by"
+    USER ||--o{ REVIEW_HELPFUL : "rates"
+    
+    %% Certificates
+    USER ||--o{ CERTIFICATE : "earns"
+    COURSE ||--o{ CERTIFICATE : "awards"
+    ENROLLMENT ||--|| CERTIFICATE : "results in"
+    
+    %% Orders & Payments
+    USER ||--o{ ORDER : "places"
+    COUPON ||--o{ ORDER : "applied to"
+    ORDER ||--o{ ORDER_ITEM : "contains"
+    COURSE ||--o{ ORDER_ITEM : "purchased in"
+    ORDER ||--o{ PAYMENT : "paid by"
+    USER ||--o{ PAYMENT : "makes"
+    PAYMENT_METHOD ||--o{ PAYMENT : "used for"
+    PAYMENT ||--o{ TRANSACTION_LOG : "logged in"
+    PAYMENT ||--o{ REFUND : "may have"
+    USER ||--o{ REFUND : "processes"
+    
+    %% Coupon System
+    COUPON ||--o{ COUPON_COURSE : "applies to"
+    COURSE ||--o{ COUPON_COURSE : "eligible for"
+    COUPON ||--o{ COUPON_USAGE : "tracks"
+    USER ||--o{ COUPON_USAGE : "uses"
+    
+    %% File Management
+    USER ||--o{ FILE : "uploads"
+    
+    %% Communication
+    USER ||--o{ NOTIFICATION : "receives"
+    USER ||--o{ MESSAGE : "sends"
+    USER ||--o{ MESSAGE : "receives"
+    
+    %% Reporting System
+    USER ||--o{ REPORT : "submits"
+    USER ||--o{ REPORT : "resolves"
+    
+    %% System Management
+    USER ||--o{ ACTIVITY_LOG : "generates"
+    COURSE ||--o{ COURSE_LOG : "tracked in"
+    USER ||--o{ COURSE_LOG : "performs"
+    USER ||--o{ ANNOUNCEMENT : "creates"
+    USER ||--o{ SYSTEM_SETTING : "manages"
