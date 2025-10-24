@@ -1,13 +1,13 @@
 erDiagram
     WISHLIST {
-        int id PK
-        int user_id FK
-        int course_id FK
+        guid id PK
+        guid user_id FK
+        guid course_id FK
         datetime added_at
     }
 
     CART {
-        int id PK
+        guid id PK
         int user_id UK
         string session_id
         datetime created_at
@@ -16,17 +16,17 @@ erDiagram
     }
 
     CART_ITEM {
-        int id PK
-        int cart_id FK
-        int course_id FK
+        guid id PK
+        guid cart_id FK
+        guid course_id FK
         decimal price_snapshot
         datetime added_at
     }
 
     REVIEW {
-        int id PK
-        int user_id FK
-        int course_id FK
+        guid id PK
+        guid user_id FK
+        guid course_id FK
         int rating
         text comment
         enum status "pending,approved,rejected"
@@ -36,22 +36,22 @@ erDiagram
         datetime created_at
         datetime updated_at
         datetime moderated_at
-        int moderated_by FK
+        guid moderated_by FK
         datetime deleted_at
     }
 
     REVIEW_HELPFUL {
-        int id PK
-        int review_id FK
-        int user_id FK
+        guid id PK
+        guid review_id FK
+        guid user_id FK
         boolean is_helpful
         datetime created_at
     }
 
     CERTIFICATE {
-        int id PK
-        int user_id FK
-        int course_id FK
+        guid id PK
+        guid user_id FK
+        guid course_id FK
         string certificate_url
         string verification_code UK
         datetime issued_at
@@ -59,7 +59,7 @@ erDiagram
     }
 
     COUPON {
-        int id PK
+        guid id PK
         string code UK
         enum type "percentage,fixed"
         decimal value
@@ -73,31 +73,31 @@ erDiagram
         datetime valid_from
         datetime valid_until
         boolean is_active
-        int created_by FK
+        guid created_by FK
         datetime created_at
     }
 
     COUPON_COURSE {
-        int id PK
-        int coupon_id FK
-        int course_id FK
+        guid id PK
+        guid coupon_id FK
+        guid course_id FK
     }
 
     COUPON_USAGE {
-        int id PK
-        int coupon_id FK
-        int user_id FK
-        int order_id FK
+        guid id PK
+        guid coupon_id FK
+        guid user_id FK
+        guid order_id FK
         datetime used_at
     }
 
     ORDER {
-        int id PK
+        guid id PK
         string order_number UK
-        int user_id FK
-        int billing_address_id FK
+        guid user_id FK
+        guid billing_address_id FK
         decimal subtotal_amount
-        int coupon_id FK
+        guid coupon_id FK
         decimal discount_amount
         decimal tax_amount
         decimal final_amount
@@ -109,15 +109,15 @@ erDiagram
     }
 
     ORDER_ITEM {
-        int id PK
-        int order_id FK
-        int course_id FK
+        guid id PK
+        guid order_id FK
+        guid course_id FK
         decimal price_at_purchase
         datetime added_at
     }
 
     PAYMENT_METHOD {
-        int id PK
+        guid id PK
         string name
         string provider
         enum type "credit_card,digital_wallet,bank_transfer"
@@ -126,10 +126,10 @@ erDiagram
     }
 
     PAYMENT {
-        int id PK
-        int user_id FK
-        int order_id FK
-        int payment_method_id FK
+        guid id PK
+        guid user_id FK
+        guid order_id FK
+        guid payment_method_id FK
         decimal amount
         enum currency "EGP,USD,EUR"
         enum status "succeeded,pending,failed"
@@ -140,19 +140,19 @@ erDiagram
     }
 
     REFUND {
-        int id PK
-        int payment_id FK
+        guid id PK
+        guid payment_id FK
         decimal amount
         text reason
         enum status "requested,approved,rejected,processed"
         datetime requested_at
         datetime processed_at
-        int processed_by FK
+        guid processed_by FK
     }
 
     TRANSACTION_LOG {
-        int id PK
-        int payment_id FK
+        guid id PK
+        guid payment_id FK
         string action
         string status
         text details
@@ -160,8 +160,8 @@ erDiagram
     }
 
     FILE {
-        int id PK
-        int uploaded_by FK
+        guid id PK
+        guid uploaded_by FK
         string file_path
         string file_name
         string original_name
@@ -176,8 +176,8 @@ erDiagram
     }
 
     NOTIFICATION {
-        int id PK
-        int user_id FK
+        guid id PK
+        guid user_id FK
         enum type "course,payment,system,message"
         string title
         text message
@@ -188,9 +188,9 @@ erDiagram
     }
 
     MESSAGE {
-        int id PK
-        int sender_id FK
-        int receiver_id FK
+        guid id PK
+        guid sender_id FK
+        guid receiver_id FK
         text content
         datetime sent_at
         boolean is_read
@@ -198,19 +198,19 @@ erDiagram
     }
 
     ANNOUNCEMENT {
-        int id PK
+        guid id PK
         string title
         text content
         enum target "all,students,teachers,admins"
-        int created_by FK
+        guid created_by FK
         boolean is_active
         datetime published_at
         datetime expires_at
     }
 
     REPORT {
-        int id PK
-        int reporter_id FK
+        guid id PK
+        guid reporter_id FK
         enum entity_type "course,review,comment,user"
         int entity_id
         enum reason "spam,inappropriate,copyright,other"
@@ -218,12 +218,12 @@ erDiagram
         enum status "pending,resolved,rejected"
         datetime created_at
         datetime resolved_at
-        int resolved_by FK
+        guid resolved_by FK
     }
 
     ACTIVITY_LOG {
-        int id PK
-        int user_id FK
+        guid id PK
+        guid user_id FK
         string action
         enum entity_type "user,course,review,order"
         int entity_id
@@ -233,16 +233,16 @@ erDiagram
     }
 
     COURSE_LOG {
-        int id PK
-        int course_id FK
-        int user_id FK
+        guid id PK
+        guid course_id FK
+        guid user_id FK
         enum action "created,updated,published,archived"
         text details
         datetime timestamp
     }
 
     SYSTEM_SETTING {
-        int id PK
+        guid id PK
         string setting_group "general,payment,email,notification"
         string key UK
         text value
@@ -250,7 +250,7 @@ erDiagram
         text description
         boolean is_public
         datetime updated_at
-        int updated_by FK
+        guid updated_by FK
     }
 
     %% Relationships
