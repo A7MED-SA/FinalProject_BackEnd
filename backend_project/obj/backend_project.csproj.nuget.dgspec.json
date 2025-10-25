@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj": {}
+    "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj": {}
   },
   "projects": {
-    "d:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj": {
+    "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj",
+        "projectUniqueName": "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj",
         "projectName": "backend_project",
-        "projectPath": "d:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj",
+        "projectPath": "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj",
         "packagesPath": "C:\\Users\\Electronica Care\\.nuget\\packages\\",
-        "outputPath": "d:\\Final_Project\\BackEnd\\backend_project\\obj\\",
+        "outputPath": "D:\\Final_Project\\BackEnd\\backend_project\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
