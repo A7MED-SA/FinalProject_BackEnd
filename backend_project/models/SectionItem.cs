@@ -37,6 +37,12 @@ public class SectionItem : BaseEntity
     // Navigation Properties
     [ForeignKey("SectionId")]
     public virtual Section Section { get; set; } = null!;
+
+    // Content Navigation Properties (based on ItemType and ItemId)
+    public virtual Video? Video { get; set; }
+    public virtual Quiz? Quiz { get; set; }
+    public virtual Document? Document { get; set; }
+    public virtual LiveSession? LiveSession { get; set; }
 }
 
 public enum SectionItemType

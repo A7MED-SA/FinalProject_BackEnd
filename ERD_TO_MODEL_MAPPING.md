@@ -71,7 +71,7 @@
 | COURSE_REQUIREMENT | CourseRequirement.cs | - DisplayOrder for sorting |
 | COURSE_LEARNING_OUTCOME | CourseLearningOutcome.cs | - DisplayOrder for sorting |
 | SECTION | Section.cs | - Position for ordering |
-| SECTION_ITEM | SectionItem.cs | - SectionItemType enum<br>- Polymorphic relationship (ItemId) |
+| SECTION_ITEM | SectionItem.cs | - SectionItemType enum<br>- Polymorphic relationship (ItemId as Guid)<br>- **NEW:** Navigation properties to Video/Quiz/Document/LiveSession |
 
 ## 📊 ERD #2: Commerce & System
 
@@ -109,16 +109,16 @@
 
 | ERD Table | Model File | Key Features |
 |-----------|------------|--------------|
-| VIDEO | Video.cs | - VideoProvider enum<br>- VideoQuality enum (with underscore)<br>- VideoStatus enum |
-| DOCUMENT | Document.cs | - DocumentFileType enum |
+| VIDEO | Video.cs | - VideoProvider enum<br>- VideoQuality enum (with underscore)<br>- VideoStatus enum<br>- **NEW:** Reverse navigation to SectionItem |
+| DOCUMENT | Document.cs | - DocumentFileType enum<br>- **NEW:** Reverse navigation to SectionItem |
 | VIDEO_COMMENT | VideoComment.cs | - Self-referencing (ParentComment)<br>- Soft delete |
 | COMMENT_LIKE | CommentLike.cs | - Simple like tracking |
-| QUIZ | Quiz.cs | - Multiple boolean settings<br>- PassingScore percentage |
+| QUIZ | Quiz.cs | - Multiple boolean settings<br>- PassingScore percentage<br>- **NEW:** Reverse navigation to SectionItem |
 | QUESTION | Question.cs | - QuestionType enum<br>- Points system<br>- Position ordering |
 | OPTION | Option.cs | - IsCorrect flag<br>- Position ordering |
 | QUIZ_ATTEMPT | QuizAttempt.cs | - QuizAttemptStatus enum<br>- Score tracking |
 | USER_ANSWER | UserAnswer.cs | - Optional SelectedOptionId<br>- Optional AnswerText |
-| LIVE_SESSION | LiveSession.cs | - LiveSessionStatus enum<br>- Scheduled vs Actual times |
+| LIVE_SESSION | LiveSession.cs | - LiveSessionStatus enum<br>- Scheduled vs Actual times<br>- **NEW:** Reverse navigation to SectionItem |
 | LIVE_ATTENDANCE | LiveAttendance.cs | - Duration calculation |
 | ENROLLMENT | Enrollment.cs | - EnrollmentStatus enum<br>- EnrollmentSource enum<br>- Progress percentage |
 | CONTENT_PROGRESS | ContentProgress.cs | - ContentType enum<br>- Polymorphic content<br>- JSON metadata |
@@ -137,13 +137,19 @@
 
 ### Polymorphic Relationships
 
-1. **SectionItem**
+1. **SectionItem** ✨ Updated
    - ItemType (enum): Video, Quiz, Document, LiveSession
-   - ItemId (int): ID of the actual content
+   - ItemId (Guid): ID of the actual content
+   - **Navigation Properties:**
+     - `Video? Video`
+     - `Quiz? Quiz`
+     - `Document? Document`
+     - `LiveSession? LiveSession`
+   - **Reverse Navigation:** Each content type has `SectionItem? SectionItem`
 
 2. **ContentProgress**
    - ContentType (enum): Video, Quiz, Document, LiveSession
-   - ContentId (int): ID of the actual content
+   - ContentId (Guid): ID of the actual content
 
 3. **File**
    - EntityType (enum): ProfilePicture, CourseImage, etc.

@@ -27,7 +27,25 @@ public class User : IdentityUser<Guid>
     [Column("bio")]
     public string? Bio { get; set; }
 
-    // Note: EmailConfirmed, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount are in IdentityUser
+    [Column("date_of_birth")]
+    public DateOnly? DateOfBirth { get; set; }
+
+    [Column("gender")]
+    [MaxLength(50)]
+    public Gender? Gender { get; set; }
+
+    [Column("nationality")]
+    [MaxLength(100)]
+    public string? Nationality { get; set; }
+
+    // Hide PhoneNumber from Identity - we use UserPhone table instead
+    [NotMapped]
+    public override string? PhoneNumber { get => base.PhoneNumber; set => base.PhoneNumber = value; }
+
+    [NotMapped]
+    public override bool PhoneNumberConfirmed { get => base.PhoneNumberConfirmed; set => base.PhoneNumberConfirmed = value; }
+
+    // Note: EmailConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount are in IdentityUser
     
     [Column("last_login")]
     public DateTime? LastLogin { get; set; }
@@ -50,4 +68,12 @@ public class User : IdentityUser<Guid>
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public virtual ICollection<Course> CreatedCourses { get; set; } = new List<Course>();
     public virtual ICollection<Course> ApprovedCourses { get; set; } = new List<Course>();
+}
+
+public enum Gender
+{
+    Male,
+    Female,
+    Other,
+    PreferNotToSay
 }

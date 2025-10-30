@@ -46,6 +46,7 @@ public class Quiz : BaseEntity
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties
+    public virtual SectionItem? SectionItem { get; set; }
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
     public virtual ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
 }

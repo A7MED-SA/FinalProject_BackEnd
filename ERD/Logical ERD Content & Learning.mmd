@@ -152,7 +152,7 @@ erDiagram
         guid id PK
         guid enrollment_id FK
         enum content_type "video,quiz,document,live_session"
-        int content_id
+        guid content_id
         boolean is_completed
         int watch_time_seconds
         int attempts_count
@@ -162,18 +162,34 @@ erDiagram
         datetime completed_at
     }
 
+    SECTION_ITEM {
+        guid id PK
+        guid section_id FK
+        enum item_type "video,quiz,document,live_session"
+        guid item_id
+        int position
+        boolean is_preview_allowed
+        boolean is_mandatory
+        datetime available_from
+        datetime available_until
+    }
+
     %% Relationships
     VIDEO ||--o{ VIDEO_COMMENT : has
+    VIDEO ||--o| SECTION_ITEM : "used_in"
     VIDEO_COMMENT }o--o{ VIDEO_COMMENT : replies_to
     VIDEO_COMMENT ||--o{ COMMENT_LIKE : receives
     
     QUIZ ||--o{ QUESTION : contains
+    QUIZ ||--o| SECTION_ITEM : "used_in"
     QUESTION ||--o{ OPTION : has
     QUIZ ||--o{ QUIZ_ATTEMPT : attempted_in
     QUIZ_ATTEMPT ||--o{ USER_ANSWER : includes
     QUESTION ||--o{ USER_ANSWER : answered_in
     OPTION }o--|| USER_ANSWER : selected_as
     
+    DOCUMENT ||--o| SECTION_ITEM : "used_in"
+    LIVE_SESSION ||--o| SECTION_ITEM : "used_in"
     LIVE_SESSION ||--o{ LIVE_ATTENDANCE : tracks
     
     ENROLLMENT ||--o{ CONTENT_PROGRESS : tracks

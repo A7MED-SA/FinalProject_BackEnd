@@ -168,12 +168,43 @@ dotnet ef migrations script
 dotnet ef database drop
 ```
 
+## 🆕 تحديثات أخيرة (Oct 30, 2025)
+
+### إضافة Navigation Properties لـ SectionItem
+
+تم تحسين العلاقة بين `SectionItem` والمحتوى (Video/Quiz/Document/LiveSession):
+
+**في SectionItem.cs:**
+```csharp
+public virtual Video? Video { get; set; }
+public virtual Quiz? Quiz { get; set; }
+public virtual Document? Document { get; set; }
+public virtual LiveSession? LiveSession { get; set; }
+```
+
+**في كل Content Model:**
+```csharp
+public virtual SectionItem? SectionItem { get; set; }
+```
+
+**الفائدة:**
+- Eager loading سهل: `.Include(si => si.Video)`
+- الوصول المباشر للمحتوى بدون queries إضافية
+- علاقة واضحة وصريحة في الكود
+
+**⚠️ مطلوب Migration:**
+```bash
+dotnet ef migrations add AddSectionItemNavigationProperties
+dotnet ef database update
+```
+
 ## 📝 ملاحظات مهمة
 
 1. **Soft Delete**: بعض الجداول تحتوي على `DeletedAt` للـ Soft Delete
 2. **Timestamps**: معظم الجداول تحتوي على `CreatedAt`, `UpdatedAt`
 3. **Navigation Properties**: جميع العلاقات لها navigation properties للتنقل السهل
 4. **Cascade Delete**: تم تكوينه بحذر لتجنب مشاكل Cascade Cycles
+5. **Polymorphic Relationships**: SectionItem و ContentProgress يستخدمان ItemType/ContentType + ItemId/ContentId
 
 ## 🎯 الخطوات التالية
 

@@ -6,6 +6,9 @@ erDiagram
         string password_hash
         string profile_picture_url
         text bio
+        date date_of_birth
+        enum gender "male,female,other,prefer_not_to_say"
+        string nationality
         boolean is_active
         datetime last_login
         datetime created_at
@@ -171,7 +174,7 @@ erDiagram
         guid id PK
         guid section_id FK
         enum item_type "video,quiz,document,live_session"
-        int item_id
+        guid item_id
         int position
         boolean is_preview_allowed
         boolean is_mandatory

@@ -213,6 +213,36 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .HasForeignKey(si => si.SectionId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // SectionItem Polymorphic Relationships (No FK constraints - handled at app level)
+        // These are navigation-only relationships based on ItemType and ItemId
+        modelBuilder.Entity<SectionItem>()
+            .HasOne(si => si.Video)
+            .WithOne(v => v.SectionItem)
+            .HasForeignKey<SectionItem>(si => si.ItemId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<SectionItem>()
+            .HasOne(si => si.Quiz)
+            .WithOne(q => q.SectionItem)
+            .HasForeignKey<SectionItem>(si => si.ItemId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<SectionItem>()
+            .HasOne(si => si.Document)
+            .WithOne(d => d.SectionItem)
+            .HasForeignKey<SectionItem>(si => si.ItemId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<SectionItem>()
+            .HasOne(si => si.LiveSession)
+            .WithOne(ls => ls.SectionItem)
+            .HasForeignKey<SectionItem>(si => si.ItemId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.NoAction);
+
         // Wishlist Relationships
         modelBuilder.Entity<Wishlist>()
             .HasOne(w => w.User)

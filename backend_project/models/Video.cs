@@ -59,6 +59,7 @@ public class Video : BaseEntity
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties
+    public virtual SectionItem? SectionItem { get; set; }
     public virtual ICollection<VideoComment> VideoComments { get; set; } = new List<VideoComment>();
 }
 

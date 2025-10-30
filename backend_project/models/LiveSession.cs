@@ -60,6 +60,7 @@ public class LiveSession : BaseEntity
     [ForeignKey("CourseId")]
     public virtual Course Course { get; set; } = null!;
 
+    public virtual SectionItem? SectionItem { get; set; }
     public virtual ICollection<LiveAttendance> LiveAttendances { get; set; } = new List<LiveAttendance>();
 }
 

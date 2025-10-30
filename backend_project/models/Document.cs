@@ -35,6 +35,9 @@ public class Document : BaseEntity
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation Properties
+    public virtual SectionItem? SectionItem { get; set; }
 }
 
 public enum DocumentFileType
