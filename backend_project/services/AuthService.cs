@@ -38,7 +38,7 @@ public class AuthService : IAuthService
         var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
         if (existingUser != null)
         {
-            throw new Exception("User with this email already exists");
+            throw new InvalidOperationException("USER_EXISTS: User with this email already exists");
         }
 
         // Create new user
@@ -49,18 +49,26 @@ public class AuthService : IAuthService
             UserName = registerDto.Email, // Use email as username
             PhoneNumber = registerDto.PhoneNumber,
             EmailConfirmed = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            
         };
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
         if (!result.Succeeded)
         {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new Exception($"Failed to create user: {errors}");
+            var errors = result.Errors.ToDictionary(e => e.Code, e => e.Description);
+            var errorMessage = string.Join("; ", errors.Select(kv => $"{kv.Key}: {kv.Value}"));
+            throw new ArgumentException($"REGISTRATION_FAILED: {errorMessage}");
         }
 
         // Assign default role (Student)
-        await _userManager.AddToRoleAsync(user, "Student");
+        var roleResult = await _userManager.AddToRoleAsync(user, "Student");
+        if (!roleResult.Succeeded)
+        {
+            // Log warning but don't fail registration
+            var roleErrors = string.Join("; ", roleResult.Errors.Select(e => e.Description));
+            // Consider using ILogger here: _logger.LogWarning("Failed to assign Student role: {Errors}", roleErrors);
+        }
 
         // Generate tokens
         return await GenerateAuthResponse(user);

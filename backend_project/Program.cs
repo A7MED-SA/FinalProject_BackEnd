@@ -17,6 +17,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
+// Configure Email Settings
+builder.Services.Configure<backend_project.Configuration.EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
 // Add Identity
 builder.Services.AddIdentity<User, Role>(options =>
 {
