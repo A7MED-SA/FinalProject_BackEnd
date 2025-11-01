@@ -1,6 +1,6 @@
 erDiagram
     VIDEO {
-        int id PK
+        guid id PK
         string title
         string url
         string thumbnail_url
@@ -18,7 +18,7 @@ erDiagram
     }
 
     DOCUMENT {
-        int id PK
+        guid id PK
         string title
         text description
         string file_url
@@ -30,10 +30,10 @@ erDiagram
     }
 
     VIDEO_COMMENT {
-        int id PK
-        int video_id FK
-        int user_id FK
-        int parent_comment_id FK
+        guid id PK
+        guid video_id FK
+        guid user_id FK
+        guid parent_comment_id FK
         text content
         boolean is_edited
         int likes_count
@@ -43,14 +43,14 @@ erDiagram
     }
 
     COMMENT_LIKE {
-        int id PK
-        int comment_id FK
-        int user_id FK
+        guid id PK
+        guid comment_id FK
+        guid user_id FK
         datetime created_at
     }
 
     QUIZ {
-        int id PK
+        guid id PK
         string title
         text description
         int duration_minutes
@@ -66,8 +66,8 @@ erDiagram
     }
 
     QUESTION {
-        int id PK
-        int quiz_id FK
+        guid id PK
+        guid quiz_id FK
         text question_text
         enum type "multiple_choice,true_false,short_answer"
         int points
@@ -76,17 +76,17 @@ erDiagram
     }
 
     OPTION {
-        int id PK
-        int question_id FK
+        guid id PK
+        guid question_id FK
         text option_text
         boolean is_correct
         int position
     }
 
     QUIZ_ATTEMPT {
-        int id PK
-        int enrollment_id FK
-        int quiz_id FK
+        guid id PK
+        guid enrollment_id FK
+        guid quiz_id FK
         int score
         int max_score
         enum status "in_progress,submitted,graded"
@@ -97,18 +97,18 @@ erDiagram
     }
 
     USER_ANSWER {
-        int id PK
-        int attempt_id FK
-        int question_id FK
-        int selected_option_id FK
+        guid id PK
+        guid attempt_id FK
+        guid question_id FK
+        guid selected_option_id FK
         text answer_text
         boolean is_correct
         int points_earned
     }
 
     LIVE_SESSION {
-        int id PK
-        int course_id FK
+        guid id PK
+        guid course_id FK
         string title
         text description
         datetime scheduled_start
@@ -125,34 +125,34 @@ erDiagram
     }
 
     LIVE_ATTENDANCE {
-        int id PK
-        int session_id FK
-        int user_id FK
+        guid id PK
+        guid session_id FK
+        guid user_id FK
         datetime joined_at
         datetime left_at
         int duration_minutes
     }
 
     ENROLLMENT {
-        int id PK
-        int user_id FK
-        int course_id FK
+        guid id PK
+        guid user_id FK
+        guid course_id FK
         datetime enrolled_at
         enum status "in_progress,completed,expired,refunded"
         datetime completed_at
         datetime last_accessed_at
         decimal progress_percentage
-        int certificate_id FK
+        guid certificate_id FK
         enum source "purchase,gift,admin_grant,coupon"
         datetime access_expires_at
         boolean is_refunded
     }
 
     CONTENT_PROGRESS {
-        int id PK
-        int enrollment_id FK
+        guid id PK
+        guid enrollment_id FK
         enum content_type "video,quiz,document,live_session"
-        int content_id
+        guid content_id
         boolean is_completed
         int watch_time_seconds
         int attempts_count
@@ -162,18 +162,34 @@ erDiagram
         datetime completed_at
     }
 
+    SECTION_ITEM {
+        guid id PK
+        guid section_id FK
+        enum item_type "video,quiz,document,live_session"
+        guid item_id
+        int position
+        boolean is_preview_allowed
+        boolean is_mandatory
+        datetime available_from
+        datetime available_until
+    }
+
     %% Relationships
     VIDEO ||--o{ VIDEO_COMMENT : has
+    VIDEO ||--o| SECTION_ITEM : "used_in"
     VIDEO_COMMENT }o--o{ VIDEO_COMMENT : replies_to
     VIDEO_COMMENT ||--o{ COMMENT_LIKE : receives
     
     QUIZ ||--o{ QUESTION : contains
+    QUIZ ||--o| SECTION_ITEM : "used_in"
     QUESTION ||--o{ OPTION : has
     QUIZ ||--o{ QUIZ_ATTEMPT : attempted_in
     QUIZ_ATTEMPT ||--o{ USER_ANSWER : includes
     QUESTION ||--o{ USER_ANSWER : answered_in
     OPTION }o--|| USER_ANSWER : selected_as
     
+    DOCUMENT ||--o| SECTION_ITEM : "used_in"
+    LIVE_SESSION ||--o| SECTION_ITEM : "used_in"
     LIVE_SESSION ||--o{ LIVE_ATTENDANCE : tracks
     
     ENROLLMENT ||--o{ CONTENT_PROGRESS : tracks
