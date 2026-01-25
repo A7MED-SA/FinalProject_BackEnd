@@ -13,9 +13,11 @@ public class User : IdentityUser<Guid>
         // Generate Sequential GUID for new users
         Id = NewId.NextSequentialGuid();
         SecurityStamp = Guid.NewGuid().ToString();
+
+        //  ⁄ÌÌ‰ «·Õ«·… «·«› —«÷Ì… ≈·Ï €Ì— „›⁄·
+        IsActive = false;
     }
 
-    // Custom properties (Email, PasswordHash, etc. are in IdentityUser)
     [Column("name")]
     [MaxLength(255)]
     public string Name { get; set; } = string.Empty;
@@ -26,6 +28,9 @@ public class User : IdentityUser<Guid>
 
     [Column("bio")]
     public string? Bio { get; set; }
+
+    [Column("is_active")]
+    public bool IsActive { get; set; } = false;
 
     [Column("date_of_birth")]
     public DateOnly? DateOfBirth { get; set; }
@@ -45,8 +50,6 @@ public class User : IdentityUser<Guid>
     [NotMapped]
     public override bool PhoneNumberConfirmed { get => base.PhoneNumberConfirmed; set => base.PhoneNumberConfirmed = value; }
 
-    // Note: EmailConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount are in IdentityUser
-    
     [Column("last_login")]
     public DateTime? LastLogin { get; set; }
 

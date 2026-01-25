@@ -20,13 +20,11 @@ public class Course : BaseEntity
     [Column("description")]
     public string? Description { get; set; }
 
-    [Column("course_image_url")]
-    [MaxLength(500)]
-    public string? CourseImageUrl { get; set; }
+    [Column("course_image_file_id")]
+    public Guid? CourseImageFileId { get; set; }
 
-    [Column("thumbnail_url")]
-    [MaxLength(500)]
-    public string? ThumbnailUrl { get; set; }
+    [ForeignKey(nameof(CourseImageFileId))]
+    public UploadedFile? CourseImageFile { get; set; }
 
     [Column("price", TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }

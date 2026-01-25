@@ -37,13 +37,6 @@ public class UploadedFile : BaseEntity
     [Column("size_kb")]
     public int SizeKb { get; set; }
 
-    [Column("entity_type")]
-    [MaxLength(50)]
-    public FileEntityType EntityType { get; set; }
-
-    [Column("entity_id")]
-    public Guid EntityId { get; set; }
-
     [Column("is_public")]
     public bool IsPublic { get; set; } = false;
 
@@ -58,11 +51,4 @@ public class UploadedFile : BaseEntity
     public virtual User Uploader { get; set; } = null!;
 }
 
-public enum FileEntityType
-{
-    ProfilePicture,
-    CourseImage,
-    Certificate,
-    Document,
-    VideoThumbnail
-}
+

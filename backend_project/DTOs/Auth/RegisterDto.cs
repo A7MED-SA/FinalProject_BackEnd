@@ -1,28 +1,35 @@
 using System.ComponentModel.DataAnnotations;
+using backend_project.Models;
 
 namespace backend_project.DTOs.Auth;
 
 public class RegisterDto
 {
-    [Required]
-    [StringLength(255)]
+    // --- ������ �������� �������� ---
+    [Required(ErrorMessage = "����� �����")]
     public string Name { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "������ ���������� �����")]
     [EmailAddress]
-    [StringLength(255)]
     public string Email { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(100, MinimumLength = 8)]
     [DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;
 
     [Required]
-    [Compare("Password", ErrorMessage = "Passwords do not match")]
-    [DataType(DataType.Password)]
+    [Compare("Password")]
     public string ConfirmPassword { get; set; } = string.Empty;
 
+    public Gender? Gender { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
+
+    // --- ������ ������ ---
     [Phone]
     public string? PhoneNumber { get; set; }
+
+    public string? Country { get; set; }
+    public string? City { get; set; }
+    public string? StreetLine1 { get; set; } // ��� Street ������
+    public string? PostalCode { get; set; }  // ��� ���� ������ �� �������
 }

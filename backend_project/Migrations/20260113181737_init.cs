@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend_project.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialWithIdentityAndJwt : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -135,6 +135,10 @@ namespace backend_project.Migrations
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     profile_picture_url = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    is_active = table.Column<bool>(type: "bit", nullable: false),
+                    date_of_birth = table.Column<DateOnly>(type: "date", nullable: true),
+                    gender = table.Column<int>(type: "int", maxLength: 50, nullable: true),
+                    nationality = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     last_login = table.Column<DateTime>(type: "datetime2", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -147,8 +151,6 @@ namespace backend_project.Migrations
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
@@ -739,6 +741,31 @@ namespace backend_project.Migrations
                     table.ForeignKey(
                         name: "FK_user_tokens_users_UserId",
                         column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "verification_tokens",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    token = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    token_hash = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    token_type = table.Column<int>(type: "int", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    used_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ip_address = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_verification_tokens", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_verification_tokens_users_user_id",
+                        column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -1375,11 +1402,31 @@ namespace backend_project.Migrations
                 {
                     table.PrimaryKey("PK_section_items", x => x.id);
                     table.ForeignKey(
+                        name: "FK_section_items_documents_item_id",
+                        column: x => x.item_id,
+                        principalTable: "documents",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_section_items_live_sessions_item_id",
+                        column: x => x.item_id,
+                        principalTable: "live_sessions",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_section_items_quizzes_item_id",
+                        column: x => x.item_id,
+                        principalTable: "quizzes",
+                        principalColumn: "id");
+                    table.ForeignKey(
                         name: "FK_section_items_sections_section_id",
                         column: x => x.section_id,
                         principalTable: "sections",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_section_items_videos_item_id",
+                        column: x => x.item_id,
+                        principalTable: "videos",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1881,6 +1928,12 @@ namespace backend_project.Migrations
                 filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_section_items_item_id",
+                table: "section_items",
+                column: "item_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_section_items_section_id",
                 table: "section_items",
                 column: "section_id");
@@ -1993,6 +2046,17 @@ namespace backend_project.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_verification_tokens_token_hash",
+                table: "verification_tokens",
+                column: "token_hash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerificationTokens_UserId_TokenType",
+                table: "verification_tokens",
+                columns: new[] { "user_id", "token_type" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_video_comments_parent_comment_id",
                 table: "video_comments",
                 column: "parent_comment_id");
@@ -2050,9 +2114,6 @@ namespace backend_project.Migrations
 
             migrationBuilder.DropTable(
                 name: "course_requirements");
-
-            migrationBuilder.DropTable(
-                name: "documents");
 
             migrationBuilder.DropTable(
                 name: "files");
@@ -2118,6 +2179,9 @@ namespace backend_project.Migrations
                 name: "user_tokens");
 
             migrationBuilder.DropTable(
+                name: "verification_tokens");
+
+            migrationBuilder.DropTable(
                 name: "wishlists");
 
             migrationBuilder.DropTable(
@@ -2127,13 +2191,16 @@ namespace backend_project.Migrations
                 name: "video_comments");
 
             migrationBuilder.DropTable(
-                name: "live_sessions");
-
-            migrationBuilder.DropTable(
                 name: "reviews");
 
             migrationBuilder.DropTable(
                 name: "permissions");
+
+            migrationBuilder.DropTable(
+                name: "documents");
+
+            migrationBuilder.DropTable(
+                name: "live_sessions");
 
             migrationBuilder.DropTable(
                 name: "sections");

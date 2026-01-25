@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
     // User & Authentication (Users, Roles, UserRoles are inherited from IdentityDbContext)
     public DbSet<UserPhone> UserPhones { get; set; }
     public DbSet<Session> Sessions { get; set; }
+    public DbSet<VerificationToken> VerificationTokens { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<TeacherRequest> TeacherRequests { get; set; }
     public DbSet<TeacherRequestDocument> TeacherRequestDocuments { get; set; }
@@ -116,6 +117,13 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .HasMany(u => u.Addresses)
             .WithOne(a => a.User)
             .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // VerificationToken Relationships
+        modelBuilder.Entity<VerificationToken>()
+            .HasOne(vt => vt.User)
+            .WithMany()
+            .HasForeignKey(vt => vt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Teacher Request Relationships
@@ -661,5 +669,13 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
         modelBuilder.Entity<Cart>()
             .HasIndex(c => c.UserId)
             .IsUnique();
+
+        modelBuilder.Entity<VerificationToken>()
+            .HasIndex(vt => vt.TokenHash)
+            .IsUnique();
+
+        modelBuilder.Entity<VerificationToken>()
+            .HasIndex(vt => new { vt.UserId, vt.TokenType })
+            .HasDatabaseName("IX_VerificationTokens_UserId_TokenType");
     }
 }

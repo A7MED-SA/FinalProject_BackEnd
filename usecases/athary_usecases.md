@@ -86,7 +86,6 @@ Each UC includes: ID, Name, Actors, Goal, Scope, Trigger, Preconditions, Main Fl
 - Email/password authentication
 - Social login (Google, Facebook, Apple)
 - Remember Me (30 days)
-- 2FA support
 - Account linking during login
 
 ### Business Rules
