@@ -1,7 +1,9 @@
+using backend_project.DTOs.Auth;
+using backend_project.DTOs;
+using backend_project.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using backend_project.DTOs.Auth;
-using backend_project.Services;
+using System.Security.Claims;
 
 namespace backend_project.Controllers;
 
@@ -9,122 +11,196 @@ namespace backend_project.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IAuthService _authService;
-    private readonly ILogger<AuthController> _logger;
+    private readonly IAuthenticationService _authService;
+    private readonly ISessionService _sessionService;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(
+        IAuthenticationService authService,
+        ISessionService sessionService)
     {
         _authService = authService;
-        _logger = logger;
+        _sessionService = sessionService;
     }
 
-    /// <summary>
-    /// Register a new user
-    /// </summary>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
+    public async Task<IActionResult> Register([FromForm] RegisterDto dto, IFormFile? profilePicture = null)
     {
         try
         {
-            var response = await _authService.RegisterAsync(registerDto);
-            _logger.LogInformation("User {Email} registered successfully", registerDto.Email);
-            return Ok(response);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
+            var response = await _authService.RegisterAsync(dto, ipAddress, profilePicture);
+            
+            return Ok(new
+            {
+                message = "Registration successful. Please check your email for verification code.",
+                user = response
+            });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Registration failed for {Email}", registerDto.Email);
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new { error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Login with email and password
-    /// </summary>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
+    public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         try
         {
-            var response = await _authService.LoginAsync(loginDto);
-            _logger.LogInformation("User {Email} logged in successfully", loginDto.Email);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
+            var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+            
+            var response = await _authService.LoginAsync(dto, ipAddress, userAgent);
+            
             return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { error = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Login failed for {Email}", loginDto.Email);
-            return Unauthorized(new { message = ex.Message });
+            return BadRequest(new { error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Refresh access token using refresh token
-    /// </summary>
     [HttpPost("refresh")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto dto)
     {
         try
         {
-            var response = await _authService.RefreshTokenAsync(refreshTokenDto.RefreshToken);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
+            var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+            
+            var response = await _authService.RefreshTokenAsync(dto.RefreshToken, ipAddress, userAgent);
+            
             return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { error = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Refresh token failed");
-            return Unauthorized(new { message = ex.Message });
+            return BadRequest(new { error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Logout (revoke refresh token)
-    /// </summary>
-    [HttpPost("logout")]
-    [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Logout([FromBody] RefreshTokenDto refreshTokenDto)
+    [HttpPost("verify-email")]
+    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDto dto)
     {
         try
         {
-            await _authService.RevokeTokenAsync(refreshTokenDto.RefreshToken);
-            _logger.LogInformation("User logged out successfully");
+            await _authService.VerifyEmailAsync(dto);
+            return Ok(new { message = "Email verified successfully. Your account is now active." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationDto dto)
+    {
+        try
+        {
+            await _authService.ResendVerificationAsync(dto.Email);
+            return Ok(new { message = "Verification code sent to your email." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+    {
+        try
+        {
+            await _authService.RequestPasswordResetAsync(dto.Email);
+            return Ok(new { message = "If the email exists, a password reset code has been sent." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    {
+        try
+        {
+            await _authService.ResetPasswordAsync(dto);
+            return Ok(new { message = "Password reset successfully. Please login with your new password." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            var sessionIdClaim = User.FindFirst("sid")?.Value;
+            if (sessionIdClaim == null || !Guid.TryParse(sessionIdClaim, out var sessionId))
+                return BadRequest(new { error = "Invalid session" });
+
+            await _authService.LogoutAsync(sessionId);
             return Ok(new { message = "Logged out successfully" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Logout failed");
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new { error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Get current user info (protected endpoint example)
-    /// </summary>
-    [HttpGet("me")]
     [Authorize]
-    [ProducesResponseType(typeof(UserInfoDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<UserInfoDto>> GetCurrentUser()
+    [HttpPost("logout-all")]
+    public async Task<IActionResult> LogoutAll()
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
+        try
         {
-            return Unauthorized();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var sessionIdClaim = User.FindFirst("sid")?.Value;
+
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return BadRequest(new { error = "Invalid user" });
+
+            if (sessionIdClaim == null || !Guid.TryParse(sessionIdClaim, out var currentSessionId))
+                return BadRequest(new { error = "Invalid session" });
+
+            await _authService.LogoutAllSessionsAsync(userId, currentSessionId);
+            return Ok(new { message = "All other sessions logged out successfully" });
         }
-
-        // You can fetch full user details from database here
-        var userInfo = new UserInfoDto
+        catch (Exception ex)
         {
-            Id = Guid.Parse(userId),
-            Name = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? string.Empty,
-            Email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? string.Empty,
-            Roles = User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList()
-        };
+            return BadRequest(new { error = ex.Message });
+        }
+    }
 
-        return Ok(userInfo);
+    [Authorize]
+    [HttpGet("sessions")]
+    public async Task<IActionResult> GetSessions()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return BadRequest(new { error = "Invalid user" });
+
+            var sessions = await _sessionService.GetUserSessionsAsync(userId);
+            return Ok(sessions);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }

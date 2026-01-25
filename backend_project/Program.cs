@@ -14,7 +14,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure JWT Settings
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+var jwtSettings = builder.Configuration
+    .GetSection("JwtSettings")
+    .Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JwtSettings not configured");
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
 // Configure Email Settings
@@ -68,7 +71,42 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // Register Services
-builder.Services.AddScoped<backend_project.Services.IAuthService, backend_project.Services.AuthService>();
+builder.Services.AddScoped<backend_project.Services.IEmailService, backend_project.Services.EmailService>();
+builder.Services.AddScoped<backend_project.Services.IFileService, backend_project.Services.FileService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ITokenService, backend_project.Services.TokenService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ISessionService, backend_project.Services.SessionService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IVerificationService, backend_project.Services.VerificationService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IActivityLogService, backend_project.Services.ActivityLogService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IPermissionService, backend_project.Services.PermissionService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IOAuthService, backend_project.Services.OAuthService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IAuthenticationService, backend_project.Services.AuthenticationService>();
+
+// Register HttpClient for OAuth service
+builder.Services.AddHttpClient();
+
+// Configure Google OAuth (if credentials are provided)
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+if (!string.IsNullOrEmpty(googleClientId))
+{
+    builder.Services.AddAuthentication()
+        .AddGoogle(options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        });
+}
+
+// Configure Microsoft OAuth (if credentials are provided)
+var microsoftClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+if (!string.IsNullOrEmpty(microsoftClientId))
+{
+    builder.Services.AddAuthentication()
+        .AddMicrosoftAccount(options =>
+        {
+            options.ClientId = microsoftClientId;
+            options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+        });
+}
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

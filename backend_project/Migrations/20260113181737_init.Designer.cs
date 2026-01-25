@@ -12,8 +12,8 @@ using backend_project.Data;
 namespace backend_project.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251024214255_InitialWithIdentityAndJwt")]
-    partial class InitialWithIdentityAndJwt
+    [Migration("20260113181737_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1952,6 +1952,9 @@ namespace backend_project.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ItemId")
+                        .IsUnique();
+
                     b.HasIndex("SectionId");
 
                     b.ToTable("section_items");
@@ -2282,6 +2285,10 @@ namespace backend_project.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at");
 
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("deleted_at");
@@ -2292,6 +2299,15 @@ namespace backend_project.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("Gender")
+                        .HasMaxLength(50)
+                        .HasColumnType("int")
+                        .HasColumnName("gender");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_active");
 
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("datetime2")
@@ -2309,6 +2325,11 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("name");
 
+                    b.Property<string>("Nationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("nationality");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -2319,12 +2340,6 @@ namespace backend_project.Migrations
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
 
                     b.Property<string>("ProfilePictureUrl")
                         .HasMaxLength(500)
@@ -2464,6 +2479,61 @@ namespace backend_project.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("user_roles", (string)null);
+                });
+
+            modelBuilder.Entity("backend_project.Models.VerificationToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("token");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("token_hash");
+
+                    b.Property<int>("TokenType")
+                        .HasColumnType("int")
+                        .HasColumnName("token_type");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("used_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "TokenType")
+                        .HasDatabaseName("IX_VerificationTokens_UserId_TokenType");
+
+                    b.ToTable("verification_tokens");
                 });
 
             modelBuilder.Entity("backend_project.Models.Video", b =>
@@ -3216,13 +3286,41 @@ namespace backend_project.Migrations
 
             modelBuilder.Entity("backend_project.Models.SectionItem", b =>
                 {
+                    b.HasOne("backend_project.Models.Document", "Document")
+                        .WithOne("SectionItem")
+                        .HasForeignKey("backend_project.Models.SectionItem", "ItemId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("backend_project.Models.LiveSession", "LiveSession")
+                        .WithOne("SectionItem")
+                        .HasForeignKey("backend_project.Models.SectionItem", "ItemId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("backend_project.Models.Quiz", "Quiz")
+                        .WithOne("SectionItem")
+                        .HasForeignKey("backend_project.Models.SectionItem", "ItemId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("backend_project.Models.Video", "Video")
+                        .WithOne("SectionItem")
+                        .HasForeignKey("backend_project.Models.SectionItem", "ItemId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("backend_project.Models.Section", "Section")
                         .WithMany("SectionItems")
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Document");
+
+                    b.Navigation("LiveSession");
+
+                    b.Navigation("Quiz");
+
                     b.Navigation("Section");
+
+                    b.Navigation("Video");
                 });
 
             modelBuilder.Entity("backend_project.Models.Session", b =>
@@ -3353,6 +3451,17 @@ namespace backend_project.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("backend_project.Models.VerificationToken", b =>
+                {
+                    b.HasOne("backend_project.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("backend_project.Models.VideoComment", b =>
                 {
                     b.HasOne("backend_project.Models.VideoComment", "ParentComment")
@@ -3428,6 +3537,11 @@ namespace backend_project.Migrations
                     b.Navigation("Sections");
                 });
 
+            modelBuilder.Entity("backend_project.Models.Document", b =>
+                {
+                    b.Navigation("SectionItem");
+                });
+
             modelBuilder.Entity("backend_project.Models.Enrollment", b =>
                 {
                     b.Navigation("ContentProgresses");
@@ -3438,6 +3552,8 @@ namespace backend_project.Migrations
             modelBuilder.Entity("backend_project.Models.LiveSession", b =>
                 {
                     b.Navigation("LiveAttendances");
+
+                    b.Navigation("SectionItem");
                 });
 
             modelBuilder.Entity("backend_project.Models.Option", b =>
@@ -3483,6 +3599,8 @@ namespace backend_project.Migrations
                     b.Navigation("Questions");
 
                     b.Navigation("QuizAttempts");
+
+                    b.Navigation("SectionItem");
                 });
 
             modelBuilder.Entity("backend_project.Models.QuizAttempt", b =>
@@ -3533,6 +3651,8 @@ namespace backend_project.Migrations
 
             modelBuilder.Entity("backend_project.Models.Video", b =>
                 {
+                    b.Navigation("SectionItem");
+
                     b.Navigation("VideoComments");
                 });
 
