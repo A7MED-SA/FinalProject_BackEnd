@@ -38,7 +38,11 @@ public class SectionItem : BaseEntity
     [ForeignKey("SectionId")]
     public virtual Section Section { get; set; } = null!;
 
-
+    // Polymorphic navigation properties (only one will be populated based on ItemType)
+    public virtual Video? Video { get; set; }
+    public virtual Quiz? Quiz { get; set; }
+    public virtual Document? Document { get; set; }
+    public virtual LiveSession? LiveSession { get; set; }
 }
 
 public enum SectionItemType

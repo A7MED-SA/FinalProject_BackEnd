@@ -27,18 +27,29 @@ public class UploadedFile : BaseEntity
     public string OriginalName { get; set; } = string.Empty;
 
     [Column("file_type")]
+    public StoredFileType FileType { get; set; }
+
+    [Required]
+    [Column("bucket")]
+    [MaxLength(100)]
+    public string Bucket { get; set; } = string.Empty;
+
+    [Column("status")]
+    public FileStatus Status { get; set; } = FileStatus.Uploading;
+    
+    [Column("storage_provider")]
     [MaxLength(50)]
-    public string? FileType { get; set; }
+    public string StorageProvider { get; set; } = "local";
 
     [Column("mime_type")]
     [MaxLength(100)]
     public string? MimeType { get; set; }
 
-    [Column("size_kb")]
-    public int SizeKb { get; set; }
+    [Column("size_bytes")]
+    public long SizeBytes { get; set; }
 
-    [Column("is_public")]
-    public bool IsPublic { get; set; } = false;
+    [Column("visibility")]
+    public FileVisibility Visibility { get; set; }
 
     [Column("uploaded_at")]
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
@@ -49,6 +60,29 @@ public class UploadedFile : BaseEntity
     // Navigation Properties
     [ForeignKey("UploadedBy")]
     public virtual User Uploader { get; set; } = null!;
+}
+
+public enum StoredFileType
+{
+    Image,
+    Video,
+    Document,
+    Recording,
+    Certificate
+}
+
+public enum FileVisibility
+{
+    Public,
+    EnrolledOnly,
+    Private
+}
+public enum FileStatus
+{
+    Uploading,
+    Ready,
+    Failed,
+    Deleted
 }
 
 

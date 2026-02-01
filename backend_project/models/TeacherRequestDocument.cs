@@ -6,27 +6,34 @@ namespace backend_project.Models;
 [Table("teacher_request_documents")]
 public class TeacherRequestDocument : BaseEntity
 {
-
     [Required]
     [Column("request_id")]
     public Guid RequestId { get; set; }
 
+    [Required]
     [Column("document_type")]
-    [MaxLength(50)]
     public DocumentType DocumentType { get; set; }
 
-    [Required]
-    [Column("value")]
+    // Used when DocumentType = Cv or Certificate
+    [Column("file_id")]
+    public Guid? FileId { get; set; }
+
+    // Used when DocumentType = PortfolioLink
+    [Column("url_value")]
     [MaxLength(500)]
-    public string Value { get; set; } = string.Empty;
+    public string? UrlValue { get; set; }
 
     [Column("uploaded_at")]
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation Properties
-    [ForeignKey("RequestId")]
-    public virtual TeacherRequest Request { get; set; } = null!;
+    // Navigation
+    [ForeignKey(nameof(RequestId))]
+    public TeacherRequest Request { get; set; } = null!;
+
+    [ForeignKey(nameof(FileId))]
+    public UploadedFile? File { get; set; }
 }
+
 
 public enum DocumentType
 {

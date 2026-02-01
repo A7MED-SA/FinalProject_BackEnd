@@ -210,7 +210,7 @@ public class OAuthService : IOAuthService
             Id = user.Id,
             Email = user.Email!,
             Name = user.Name,
-            ProfilePictureUrl = user.ProfilePictureUrl,
+            ProfilePictureUrl = null, // File-based: generate URL from ProfileImageFile if needed
             IsActive = user.IsActive,
             EmailConfirmed = user.EmailConfirmed,
             Roles = roles.ToList()

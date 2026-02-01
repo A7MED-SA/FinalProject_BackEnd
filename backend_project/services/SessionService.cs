@@ -1,6 +1,8 @@
 using backend_project.Data;
 using backend_project.DTOs.Auth;
 using backend_project.Models;
+using backend_project.Configuration;
+using Microsoft.Extensions.Options;
 using backend_project.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +11,12 @@ namespace backend_project.Services;
 public class SessionService : ISessionService
 {
     private readonly ApplicationDbContext _context;
+    private readonly JwtSettings _jwtSettings;
 
-    public SessionService(ApplicationDbContext context)
+    public SessionService(ApplicationDbContext context,IOptions<JwtSettings> jwtOptions)
     {
         _context = context;
+        _jwtSettings = jwtOptions.Value;
     }
 
     public async Task<Session> CreateSessionAsync(
@@ -25,12 +29,14 @@ public class SessionService : ISessionService
     {
         UserId = user.Id,
         RefreshTokenHash = refreshTokenHash,
-        IpAddress = ipAddress,
-        UserAgent = userAgent,
         IsActive = true,
-        LastActivityAt = DateTime.UtcNow,
-        CreatedAt = DateTime.UtcNow
+        CreatedAt = DateTime.UtcNow,
+        ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
+        RefreshExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
+        IpAddress = ipAddress,
+        UserAgent = userAgent
     };
+
 
     _context.Sessions.Add(session);
     await _context.SaveChangesAsync();
@@ -57,12 +63,11 @@ public class SessionService : ISessionService
         return true;
     }
 
-    public async Task UpdateSessionTokensAsync(Guid sessionId, string newAccessTokenHash, string newRefreshTokenHash)
+    public async Task UpdateSessionTokensAsync(Guid sessionId, string newRefreshTokenHash)
     {
         var session = await _context.Sessions.FindAsync(sessionId);
         if (session != null)
         {
-            session.TokenHash = newAccessTokenHash;
             session.RefreshTokenHash = newRefreshTokenHash;
             session.LastActivityAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();

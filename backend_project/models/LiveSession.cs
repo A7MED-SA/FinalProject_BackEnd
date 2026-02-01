@@ -6,14 +6,12 @@ namespace backend_project.Models;
 [Table("live_sessions")]
 public class LiveSession : BaseEntity
 {
-
     [Required]
     [Column("course_id")]
     public Guid CourseId { get; set; }
 
-    [Required]
+    [Required, MaxLength(255)]
     [Column("title")]
-    [MaxLength(255)]
     public string Title { get; set; } = string.Empty;
 
     [Column("description")]
@@ -25,42 +23,21 @@ public class LiveSession : BaseEntity
     [Column("scheduled_end")]
     public DateTime ScheduledEnd { get; set; }
 
-    [Column("actual_start")]
-    public DateTime? ActualStart { get; set; }
-
-    [Column("actual_end")]
-    public DateTime? ActualEnd { get; set; }
-
-    [Column("meeting_url")]
-    [MaxLength(500)]
-    public string? MeetingUrl { get; set; }
-
-    [Column("meeting_password")]
-    [MaxLength(100)]
-    public string? MeetingPassword { get; set; }
-
     [Column("status")]
-    [MaxLength(20)]
-    public LiveSessionStatus Status { get; set; } = LiveSessionStatus.Scheduled;
+    public LiveSessionStatus Status { get; set; }
 
-    [Column("max_attendees")]
-    public Guid? MaxAttendees { get; set; }
+    [Column("recording_file_id")]
+    public Guid? RecordingFileId { get; set; }
 
-    [Column("is_recorded")]
-    public bool IsRecorded { get; set; } = false;
+    [ForeignKey(nameof(RecordingFileId))]
+    public UploadedFile? RecordingFile { get; set; }
 
-    [Column("recording_url")]
-    [MaxLength(500)]
-    public string? RecordingUrl { get; set; }
+    [ForeignKey(nameof(CourseId))]
+    public Course Course { get; set; } = null!;
 
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    // Navigation Properties
-    [ForeignKey("CourseId")]
-    public virtual Course Course { get; set; } = null!;
-
+    // Navigation to SectionItem (if session is part of a course section)
     public virtual SectionItem? SectionItem { get; set; }
+
     public virtual ICollection<LiveAttendance> LiveAttendances { get; set; } = new List<LiveAttendance>();
 }
 
@@ -68,6 +45,6 @@ public enum LiveSessionStatus
 {
     Scheduled,
     Live,
-    Ended,
+    Finished,
     Cancelled
 }

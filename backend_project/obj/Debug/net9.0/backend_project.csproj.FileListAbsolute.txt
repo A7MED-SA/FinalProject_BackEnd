@@ -189,3 +189,7 @@ D:\Final_Project\BackEnd\backend_project\obj\Debug\net9.0\refint\backend_project
 D:\Final_Project\BackEnd\backend_project\obj\Debug\net9.0\backend_project.pdb
 D:\Final_Project\BackEnd\backend_project\obj\Debug\net9.0\backend_project.genruntimeconfig.cache
 D:\Final_Project\BackEnd\backend_project\obj\Debug\net9.0\ref\backend_project.dll
+d:\Final_Project\BackEnd\backend_project\bin\Debug\net9.0\CommunityToolkit.HighPerformance.dll
+d:\Final_Project\BackEnd\backend_project\bin\Debug\net9.0\Minio.dll
+d:\Final_Project\BackEnd\backend_project\bin\Debug\net9.0\System.IO.Hashing.dll
+d:\Final_Project\BackEnd\backend_project\bin\Debug\net9.0\System.Reactive.dll

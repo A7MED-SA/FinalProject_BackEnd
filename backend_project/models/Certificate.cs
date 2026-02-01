@@ -6,7 +6,6 @@ namespace backend_project.Models;
 [Table("certificates")]
 public class Certificate : BaseEntity
 {
-
     [Required]
     [Column("user_id")]
     public Guid UserId { get; set; }
@@ -15,25 +14,23 @@ public class Certificate : BaseEntity
     [Column("course_id")]
     public Guid CourseId { get; set; }
 
-    [Column("certificate_url")]
-    [MaxLength(500)]
-    public string? CertificateUrl { get; set; }
-
     [Required]
+    [Column("certificate_file_id")]
+    public Guid CertificateFileId { get; set; }
+
+    [Required, MaxLength(100)]
     [Column("verification_code")]
-    [MaxLength(100)]
     public string VerificationCode { get; set; } = string.Empty;
 
     [Column("issued_at")]
     public DateTime IssuedAt { get; set; } = DateTime.UtcNow;
 
-    [Column("expires_at")]
-    public DateTime? ExpiresAt { get; set; }
+    [ForeignKey(nameof(CertificateFileId))]
+    public UploadedFile CertificateFile { get; set; } = null!;
 
-    // Navigation Properties
-    [ForeignKey("UserId")]
+    [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;
 
-    [ForeignKey("CourseId")]
+    [ForeignKey(nameof(CourseId))]
     public virtual Course Course { get; set; } = null!;
 }

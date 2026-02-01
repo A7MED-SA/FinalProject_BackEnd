@@ -1,15 +1,14 @@
 using backend_project.DTOs.Auth;
 using backend_project.DTOs;
-using Microsoft.AspNetCore.Http;
 
 namespace backend_project.Services.Interfaces;
 
 public interface IAuthenticationService
 {
     /// <summary>
-    /// Registers a new user with email/password and optional profile picture
+    /// Registers a new user with email/password
     /// </summary>
-    Task<RegisterResponseDto> RegisterAsync(RegisterDto dto, string ipAddress, IFormFile? profilePicture = null);
+    Task<RegisterResponseDto> RegisterAsync(RegisterDto dto, string ipAddress);
 
     /// <summary>
     /// Authenticates user with email and password
@@ -50,4 +49,7 @@ public interface IAuthenticationService
     /// Logs out all sessions for a user except current one
     /// </summary>
     Task LogoutAllSessionsAsync(Guid userId, Guid currentSessionId);
+
+    Task ChangePasswordAsync(Guid userId, ChangePasswordDto dto);
+
 }

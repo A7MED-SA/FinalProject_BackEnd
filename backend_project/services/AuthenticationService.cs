@@ -21,7 +21,6 @@ public class AuthenticationService : IAuthenticationService
     private readonly IVerificationService _verificationService;
     private readonly IActivityLogService _activityLogService;
     private readonly IConfiguration _configuration;
-    private readonly IFileService _fileService;
 
     public AuthenticationService(
         UserManager<User> userManager,
@@ -32,8 +31,7 @@ public class AuthenticationService : IAuthenticationService
         ISessionService sessionService,
         IVerificationService verificationService,
         IActivityLogService activityLogService,
-        IConfiguration configuration,
-        IFileService fileService)
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -44,32 +42,21 @@ public class AuthenticationService : IAuthenticationService
         _verificationService = verificationService;
         _activityLogService = activityLogService;
         _configuration = configuration;
-        _fileService = fileService;
     }
 
     public async Task<RegisterResponseDto> RegisterAsync(
         RegisterDto dto,
-        string ipAddress,
-        IFormFile? profilePicture)
+        string ipAddress)
     {
         // Check duplicate email
         var existingUser = await _userManager.FindByEmailAsync(dto.Email);
         if (existingUser != null)
             throw new Exception("User with this email already exists");
 
-        string? profilePictureUrl = null;
-
         using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
-            // Upload profile picture
-            if (profilePicture != null)
-            {
-                profilePictureUrl =
-                    await _fileService.UploadFileAsync(profilePicture, "profiles");
-            }
-
             // Create User (NO Id assignment)
             var user = new User
             {
@@ -78,7 +65,6 @@ public class AuthenticationService : IAuthenticationService
                 Name = dto.Name,
                 Gender = dto.Gender,
                 DateOfBirth = dto.DateOfBirth,
-                ProfilePictureUrl = profilePictureUrl,
                 EmailConfirmed = false,
                 IsActive = false,
                 CreatedAt = DateTime.UtcNow
@@ -150,10 +136,6 @@ public class AuthenticationService : IAuthenticationService
         catch
         {
             await transaction.RollbackAsync();
-
-            if (!string.IsNullOrEmpty(profilePictureUrl))
-                await _fileService.DeleteFileAsync(profilePictureUrl);
-
             throw;
         }
     }
@@ -239,7 +221,7 @@ public class AuthenticationService : IAuthenticationService
                 Id = user.Id,
                 Email = user.Email!,
                 Name = user.Name,
-                ProfilePictureUrl = user.ProfilePictureUrl,
+                ProfilePictureUrl = null, // File-based: generate URL from ProfileImageFile if needed
                 IsActive = user.IsActive,
                 EmailConfirmed = user.EmailConfirmed,
                 Roles = roles.ToList()
@@ -275,10 +257,11 @@ public class AuthenticationService : IAuthenticationService
         var newRefreshTokenHash = _tokenService.HashToken(newRefreshToken);
 
         // Update session with new tokens (rotation)
-        await _sessionService.UpdateSessionTokensAsync(session.Id, newAccessTokenHash, newRefreshTokenHash);
+        await _sessionService.UpdateSessionTokensAsync(session.Id, newRefreshTokenHash);
 
         // Get user roles
         var roles = await _userManager.GetRolesAsync(user);
+
 
         return new AuthResponseDto
         {
@@ -291,7 +274,7 @@ public class AuthenticationService : IAuthenticationService
                 Id = user.Id,
                 Email = user.Email!,
                 Name = user.Name,
-                ProfilePictureUrl = user.ProfilePictureUrl,
+                ProfilePictureUrl = null, // File-based: generate URL from ProfileImageFile if needed
                 IsActive = user.IsActive,
                 EmailConfirmed = user.EmailConfirmed,
                 Roles = roles.ToList()
@@ -390,5 +373,22 @@ public class AuthenticationService : IAuthenticationService
     public async Task LogoutAllSessionsAsync(Guid userId, Guid currentSessionId)
     {
         await _sessionService.RevokeAllUserSessionsAsync(userId, currentSessionId);
+    }
+
+    public async Task ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString())
+                   ?? throw new KeyNotFoundException("User not found");
+
+        var result = await _userManager.ChangePasswordAsync(
+            user,
+            dto.CurrentPassword,
+            dto.NewPassword
+        );
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException(
+                string.Join(", ", result.Errors.Select(e => e.Description))
+            );
     }
 }

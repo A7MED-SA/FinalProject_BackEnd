@@ -12,8 +12,8 @@ using backend_project.Data;
 namespace backend_project.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260113181737_init")]
-    partial class init
+    [Migration("20260127012706_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -401,18 +401,13 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<string>("CertificateUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("certificate_url");
+                    b.Property<Guid>("CertificateFileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("certificate_file_id");
 
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("course_id");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("expires_at");
 
                     b.Property<DateTime>("IssuedAt")
                         .HasColumnType("datetime2")
@@ -429,6 +424,8 @@ namespace backend_project.Migrations
                         .HasColumnName("verification_code");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CertificateFileId");
 
                     b.HasIndex("CourseId");
 
@@ -679,10 +676,9 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("category_id");
 
-                    b.Property<string>("CourseImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("course_image_url");
+                    b.Property<Guid?>("CourseImageFileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("course_image_file_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
@@ -703,6 +699,10 @@ namespace backend_project.Migrations
                     b.Property<int>("EnrollmentCount")
                         .HasColumnType("int")
                         .HasColumnName("enrollment_count");
+
+                    b.Property<Guid?>("IntroVideoFileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("intro_video_file_id");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit")
@@ -737,11 +737,6 @@ namespace backend_project.Migrations
                         .HasColumnType("int")
                         .HasColumnName("status");
 
-                    b.Property<string>("ThumbnailUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("thumbnail_url");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -762,7 +757,11 @@ namespace backend_project.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("CourseImageFileId");
+
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("IntroVideoFileId");
 
                     b.HasIndex("Slug")
                         .IsUnique();
@@ -878,20 +877,9 @@ namespace backend_project.Migrations
                         .HasColumnType("int")
                         .HasColumnName("download_count");
 
-                    b.Property<int>("FileSizeKb")
-                        .HasColumnType("int")
-                        .HasColumnName("file_size_kb");
-
-                    b.Property<int>("FileType")
-                        .HasMaxLength(10)
-                        .HasColumnType("int")
-                        .HasColumnName("file_type");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("file_url");
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("file_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -899,11 +887,9 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("title");
 
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("uploaded_at");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("FileId");
 
                     b.ToTable("documents");
                 });
@@ -1012,48 +998,17 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("ActualEnd")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("actual_end");
-
-                    b.Property<DateTime?>("ActualStart")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("actual_start");
-
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("course_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("description");
 
-                    b.Property<bool>("IsRecorded")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_recorded");
-
-                    b.Property<Guid?>("MaxAttendees")
+                    b.Property<Guid?>("RecordingFileId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("max_attendees");
-
-                    b.Property<string>("MeetingPassword")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("meeting_password");
-
-                    b.Property<string>("MeetingUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("meeting_url");
-
-                    b.Property<string>("RecordingUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("recording_url");
+                        .HasColumnName("recording_file_id");
 
                     b.Property<DateTime>("ScheduledEnd")
                         .HasColumnType("datetime2")
@@ -1064,7 +1019,6 @@ namespace backend_project.Migrations
                         .HasColumnName("scheduled_start");
 
                     b.Property<int>("Status")
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasColumnName("status");
 
@@ -1077,6 +1031,8 @@ namespace backend_project.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
+
+                    b.HasIndex("RecordingFileId");
 
                     b.ToTable("live_sessions");
                 });
@@ -1997,12 +1953,6 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("refresh_token_hash");
 
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("token_hash");
-
                     b.Property<string>("UserAgent")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)")
@@ -2015,9 +1965,6 @@ namespace backend_project.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RefreshTokenHash")
-                        .IsUnique();
-
-                    b.HasIndex("TokenHash")
                         .IsUnique();
 
                     b.HasIndex("UserId");
@@ -2133,9 +2080,12 @@ namespace backend_project.Migrations
                         .HasColumnName("id");
 
                     b.Property<int>("DocumentType")
-                        .HasMaxLength(50)
                         .HasColumnType("int")
                         .HasColumnName("document_type");
+
+                    b.Property<Guid?>("FileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("file_id");
 
                     b.Property<Guid>("RequestId")
                         .HasColumnType("uniqueidentifier")
@@ -2145,13 +2095,14 @@ namespace backend_project.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("uploaded_at");
 
-                    b.Property<string>("Value")
-                        .IsRequired()
+                    b.Property<string>("UrlValue")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)")
-                        .HasColumnName("value");
+                        .HasColumnName("url_value");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FileId");
 
                     b.HasIndex("RequestId");
 
@@ -2201,18 +2152,15 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
+                    b.Property<string>("Bucket")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("bucket");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("deleted_at");
-
-                    b.Property<Guid>("EntityId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("entity_id");
-
-                    b.Property<int>("EntityType")
-                        .HasMaxLength(50)
-                        .HasColumnType("int")
-                        .HasColumnName("entity_type");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -2226,14 +2174,9 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("file_path");
 
-                    b.Property<string>("FileType")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                    b.Property<int>("FileType")
+                        .HasColumnType("int")
                         .HasColumnName("file_type");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_public");
 
                     b.Property<string>("MimeType")
                         .HasMaxLength(100)
@@ -2246,9 +2189,19 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("original_name");
 
-                    b.Property<int>("SizeKb")
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int")
-                        .HasColumnName("size_kb");
+                        .HasColumnName("status");
+
+                    b.Property<string>("StorageProvider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("storage_provider");
 
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2")
@@ -2258,9 +2211,18 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("uploaded_by");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Visibility")
+                        .HasColumnType("int")
+                        .HasColumnName("visibility");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UploadedBy");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("files");
                 });
@@ -2341,10 +2303,9 @@ namespace backend_project.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfilePictureUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("profile_picture_url");
+                    b.Property<Guid?>("ProfileImageFileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("profile_image_file_id");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -2373,6 +2334,8 @@ namespace backend_project.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("ProfileImageFileId");
 
                     b.ToTable("users", (string)null);
                 });
@@ -2542,20 +2505,11 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
-
                     b.Property<int>("DurationSeconds")
                         .HasColumnType("int")
                         .HasColumnName("duration_seconds");
 
-                    b.Property<bool>("HasSubtitles")
-                        .HasColumnType("bit")
-                        .HasColumnName("has_subtitles");
-
                     b.Property<int>("Provider")
-                        .HasMaxLength(30)
                         .HasColumnType("int")
                         .HasColumnName("provider");
 
@@ -2565,27 +2519,16 @@ namespace backend_project.Migrations
                         .HasColumnName("provider_video_id");
 
                     b.Property<int>("Quality")
-                        .HasMaxLength(10)
                         .HasColumnType("int")
                         .HasColumnName("quality");
 
-                    b.Property<int?>("SkipIntroSeconds")
-                        .HasColumnType("int")
-                        .HasColumnName("skip_intro_seconds");
-
-                    b.Property<int?>("SkipOutroSeconds")
-                        .HasColumnType("int")
-                        .HasColumnName("skip_outro_seconds");
-
                     b.Property<int>("Status")
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasColumnName("status");
 
-                    b.Property<string>("ThumbnailUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("thumbnail_url");
+                    b.Property<Guid?>("ThumbnailFileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("thumbnail_file_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -2597,17 +2540,19 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("transcript");
 
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("url");
+                    b.Property<Guid>("VideoFileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("video_file_id");
 
                     b.Property<int>("ViewCount")
                         .HasColumnType("int")
                         .HasColumnName("view_count");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ThumbnailFileId");
+
+                    b.HasIndex("VideoFileId");
 
                     b.ToTable("videos");
                 });
@@ -2804,6 +2749,12 @@ namespace backend_project.Migrations
 
             modelBuilder.Entity("backend_project.Models.Certificate", b =>
                 {
+                    b.HasOne("backend_project.Models.UploadedFile", "CertificateFile")
+                        .WithMany()
+                        .HasForeignKey("CertificateFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("backend_project.Models.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
@@ -2815,6 +2766,8 @@ namespace backend_project.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CertificateFile");
 
                     b.Navigation("Course");
 
@@ -2921,17 +2874,29 @@ namespace backend_project.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("backend_project.Models.UploadedFile", "CourseImageFile")
+                        .WithMany()
+                        .HasForeignKey("CourseImageFileId");
+
                     b.HasOne("backend_project.Models.User", "Creator")
                         .WithMany("CreatedCourses")
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("backend_project.Models.UploadedFile", "IntroVideoFile")
+                        .WithMany()
+                        .HasForeignKey("IntroVideoFileId");
+
                     b.Navigation("Approver");
 
                     b.Navigation("Category");
 
+                    b.Navigation("CourseImageFile");
+
                     b.Navigation("Creator");
+
+                    b.Navigation("IntroVideoFile");
                 });
 
             modelBuilder.Entity("backend_project.Models.CourseLearningOutcome", b =>
@@ -2973,6 +2938,17 @@ namespace backend_project.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("backend_project.Models.Document", b =>
+                {
+                    b.HasOne("backend_project.Models.UploadedFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("File");
                 });
 
             modelBuilder.Entity("backend_project.Models.Enrollment", b =>
@@ -3028,7 +3004,13 @@ namespace backend_project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backend_project.Models.UploadedFile", "RecordingFile")
+                        .WithMany()
+                        .HasForeignKey("RecordingFileId");
+
                     b.Navigation("Course");
+
+                    b.Navigation("RecordingFile");
                 });
 
             modelBuilder.Entity("backend_project.Models.Message", b =>
@@ -3364,11 +3346,17 @@ namespace backend_project.Migrations
 
             modelBuilder.Entity("backend_project.Models.TeacherRequestDocument", b =>
                 {
+                    b.HasOne("backend_project.Models.UploadedFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId");
+
                     b.HasOne("backend_project.Models.TeacherRequest", "Request")
                         .WithMany("Documents")
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("File");
 
                     b.Navigation("Request");
                 });
@@ -3392,7 +3380,20 @@ namespace backend_project.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("backend_project.Models.User", null)
+                        .WithMany("UploadedFiles")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Uploader");
+                });
+
+            modelBuilder.Entity("backend_project.Models.User", b =>
+                {
+                    b.HasOne("backend_project.Models.UploadedFile", "ProfileImageFile")
+                        .WithMany()
+                        .HasForeignKey("ProfileImageFileId");
+
+                    b.Navigation("ProfileImageFile");
                 });
 
             modelBuilder.Entity("backend_project.Models.UserAnswer", b =>
@@ -3460,6 +3461,23 @@ namespace backend_project.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("backend_project.Models.Video", b =>
+                {
+                    b.HasOne("backend_project.Models.UploadedFile", "ThumbnailFile")
+                        .WithMany()
+                        .HasForeignKey("ThumbnailFileId");
+
+                    b.HasOne("backend_project.Models.UploadedFile", "VideoFile")
+                        .WithMany()
+                        .HasForeignKey("VideoFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ThumbnailFile");
+
+                    b.Navigation("VideoFile");
                 });
 
             modelBuilder.Entity("backend_project.Models.VideoComment", b =>
@@ -3643,6 +3661,8 @@ namespace backend_project.Migrations
                     b.Navigation("Sessions");
 
                     b.Navigation("SubmittedTeacherRequests");
+
+                    b.Navigation("UploadedFiles");
 
                     b.Navigation("UserPhones");
 

@@ -22,7 +22,7 @@ public interface ISessionService
     /// <summary>
     /// Updates session with new token hashes during refresh
     /// </summary>
-    Task UpdateSessionTokensAsync(Guid sessionId, string newAccessTokenHash, string newRefreshTokenHash);
+    Task UpdateSessionTokensAsync(Guid sessionId, string newRefreshTokenHash);
 
     /// <summary>
     /// Revokes (soft-deletes) a specific session

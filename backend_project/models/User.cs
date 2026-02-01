@@ -10,11 +10,9 @@ public class User : IdentityUser<Guid>
 {
     public User()
     {
-        // Generate Sequential GUID for new users
         Id = NewId.NextSequentialGuid();
         SecurityStamp = Guid.NewGuid().ToString();
 
-        //  ⁄ÌÌ‰ «·Õ«·… «·«› —«÷Ì… ≈·Ï €Ì— „›⁄·
         IsActive = false;
     }
 
@@ -22,9 +20,14 @@ public class User : IdentityUser<Guid>
     [MaxLength(255)]
     public string Name { get; set; } = string.Empty;
 
-    [Column("profile_picture_url")]
-    [MaxLength(500)]
-    public string? ProfilePictureUrl { get; set; }
+    [Column("profile_image_file_id")]
+    public Guid? ProfileImageFileId { get; set; }
+
+    [ForeignKey(nameof(ProfileImageFileId))]
+    public UploadedFile? ProfileImageFile { get; set; }
+
+    public virtual ICollection<UploadedFile> UploadedFiles { get; set; }
+        = new List<UploadedFile>();
 
     [Column("bio")]
     public string? Bio { get; set; }

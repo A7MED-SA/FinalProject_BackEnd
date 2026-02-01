@@ -78,51 +78,124 @@ public class EmailService : IEmailService
         }
     }
 
+//     private string GetEmailVerificationTemplate(string name, string otp)
+//     {
+//         return $@"
+// <!DOCTYPE html>
+// <html dir='rtl' lang='ar'>
+// <head>
+//     <meta charset='UTF-8'>
+//     <style>
+//         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; padding: 20px; }}
+//         .container {{ max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+//         .header {{ text-align: center; margin-bottom: 30px; }}
+//         .logo {{ color: #3F9AAE; font-size: 28px; font-weight: bold; }}
+//         h1 {{ color: #333; font-size: 24px; }}
+//         .otp-box {{ background-color: #f8f9fa; border: 2px dashed #3F9AAE; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0; }}
+//         .otp {{ font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #3F9AAE; }}
+//         .message {{ color: #666; line-height: 1.6; margin: 20px 0; }}
+//         .warning {{ color: #F96E5B; font-size: 14px; margin-top: 20px; }}
+//         .footer {{ text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }}
+//     </style>
+// </head>
+// <body>
+//     <div class='container'>
+//         <div class='header'>
+//             <div class='logo'>📚 منصة آثاري التعليمية</div>
+//         </div>
+//         <h1>مرحباً {name}!</h1>
+//         <p class='message'>
+//             شكراً لتسجيلك في منصة آثاري التعليمية. لتفعيل حسابك، يرجى استخدام رمز التحقق التالي:
+//         </p>
+//         <div class='otp-box'>
+//             <div class='otp'>{otp}</div>
+//         </div>
+//         <p class='message'>
+//             هذا الرمز صالح لمدة 15 دقيقة فقط.
+//         </p>
+//         <p class='warning'>
+//             ⚠️ إذا لم تقم بإنشاء هذا الحساب، يرجى تجاهل هذه الرسالة.
+//         </p>
+//         <div class='footer'>
+//             © 2026 منصة آثاري التعليمية. جميع الحقوق محفوظة.
+//         </div>
+//     </div>
+// </body>
+// </html>";
+//     }
+
     private string GetEmailVerificationTemplate(string name, string otp)
     {
         return $@"
-<!DOCTYPE html>
-<html dir='rtl' lang='ar'>
-<head>
-    <meta charset='UTF-8'>
-    <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; padding: 20px; }}
-        .container {{ max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-        .header {{ text-align: center; margin-bottom: 30px; }}
-        .logo {{ color: #3F9AAE; font-size: 28px; font-weight: bold; }}
-        h1 {{ color: #333; font-size: 24px; }}
-        .otp-box {{ background-color: #f8f9fa; border: 2px dashed #3F9AAE; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0; }}
-        .otp {{ font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #3F9AAE; }}
-        .message {{ color: #666; line-height: 1.6; margin: 20px 0; }}
-        .warning {{ color: #F96E5B; font-size: 14px; margin-top: 20px; }}
-        .footer {{ text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }}
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <div class='header'>
-            <div class='logo'>📚 منصة آثاري التعليمية</div>
-        </div>
-        <h1>مرحباً {name}!</h1>
-        <p class='message'>
-            شكراً لتسجيلك في منصة آثاري التعليمية. لتفعيل حسابك، يرجى استخدام رمز التحقق التالي:
-        </p>
-        <div class='otp-box'>
-            <div class='otp'>{otp}</div>
-        </div>
-        <p class='message'>
-            هذا الرمز صالح لمدة 15 دقيقة فقط.
-        </p>
-        <p class='warning'>
-            ⚠️ إذا لم تقم بإنشاء هذا الحساب، يرجى تجاهل هذه الرسالة.
-        </p>
-        <div class='footer'>
-            © 2026 منصة آثاري التعليمية. جميع الحقوق محفوظة.
-        </div>
-    </div>
-</body>
-</html>";
+    <!DOCTYPE html>
+    <html lang='ar' dir='rtl'>
+    <head>
+        <meta charset='UTF-8'>
+        <title>تأكيد الحساب</title>
+    </head>
+    <body style='margin:0;padding:0;background-color:#F4F8FA;font-family:Segoe UI,Arial,sans-serif;'>
+
+        <table width='100%' cellpadding='0' cellspacing='0'>
+            <tr>
+                <td align='center' style='padding:40px 20px;'>
+
+                    <!-- Card -->
+                    <table width='600' cellpadding='0' cellspacing='0' style='background:#ffffff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.08);overflow:hidden;'>
+
+                        <!-- Header -->
+                        <tr>
+                            <td style='background:#3F9AAE;padding:24px;text-align:center;color:#ffffff;font-size:22px;font-weight:700;'>
+                                📚 منصة آثاري التعليمية
+                            </td>
+                        </tr>
+
+                        <!-- Body -->
+                        <tr>
+                            <td style='padding:40px;color:#1F2937;'>
+
+                                <h2 style='margin-top:0;'>مرحباً {name} 👋</h2>
+
+                                <p style='line-height:1.8;color:#4B5563;font-size:15px;'>
+                                    سعداء بانضمامك إلى منصة <strong>آثاري</strong>.
+                                    لتفعيل حسابك، استخدم رمز التحقق التالي:
+                                </p>
+
+                                <!-- OTP -->
+                                <div style='margin:32px 0;padding:24px;text-align:center;border:2px dashed #3F9AAE;border-radius:12px;background:#F9FCFD;'>
+                                    <span style='font-size:36px;font-weight:700;letter-spacing:8px;color:#3F9AAE;'>
+                                        {otp}
+                                    </span>
+                                </div>
+
+                                <p style='font-size:14px;color:#6B7280;'>
+                                    ⏱️ الرمز صالح لمدة <strong>15 دقيقة</strong>.
+                                </p>
+
+                                <p style='margin-top:24px;font-size:13px;color:#F96E5B;'>
+                                    ⚠️ إذا لم تقم بإنشاء هذا الحساب، يمكنك تجاهل هذه الرسالة بأمان.
+                                </p>
+
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td style='background:#F9FAFB;padding:20px;text-align:center;font-size:12px;color:#9CA3AF;'>
+                                © 2026 منصة آثاري التعليمية — جميع الحقوق محفوظة
+                            </td>
+                        </tr>
+
+                    </table>
+                    <!-- End Card -->
+
+                </td>
+            </tr>
+        </table>
+
+    </body>
+    </html>";
     }
+
 
     private string GetPasswordResetTemplate(string name, string otp)
     {

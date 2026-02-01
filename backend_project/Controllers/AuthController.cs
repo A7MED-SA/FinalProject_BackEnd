@@ -23,12 +23,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromForm] RegisterDto dto, IFormFile? profilePicture = null)
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         try
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
-            var response = await _authService.RegisterAsync(dto, ipAddress, profilePicture);
+            var response = await _authService.RegisterAsync(dto, ipAddress);
             
             return Ok(new
             {

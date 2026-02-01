@@ -26,6 +26,13 @@ public class Course : BaseEntity
     [ForeignKey(nameof(CourseImageFileId))]
     public UploadedFile? CourseImageFile { get; set; }
 
+    [Column("intro_video_file_id")]
+    public Guid? IntroVideoFileId { get; set; }
+
+    [ForeignKey(nameof(IntroVideoFileId))]
+    public UploadedFile? IntroVideoFile { get; set; }
+
+
     [Column("price", TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
 

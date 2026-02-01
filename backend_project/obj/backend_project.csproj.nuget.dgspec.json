@@ -99,6 +99,10 @@
               "target": "Package",
               "version": "[9.0.10, )"
             },
+            "Minio": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
             "NSwag.AspNetCore": {
               "target": "Package",
               "version": "[14.6.1, )"

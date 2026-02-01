@@ -12,11 +12,6 @@ public class Session : BaseEntity
     public Guid UserId { get; set; }
 
     [Required]
-    [Column("token_hash")]
-    [MaxLength(255)]
-    public string TokenHash { get; set; } = string.Empty;
-
-    [Required]
     [Column("refresh_token_hash")]
     [MaxLength(255)]
     public string RefreshTokenHash { get; set; } = string.Empty;

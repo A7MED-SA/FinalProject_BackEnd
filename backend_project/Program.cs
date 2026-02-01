@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 using backend_project.Data;
 using backend_project.Models;
 using backend_project.Configuration;
+using backend_project.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +70,26 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(origin =>
+            {
+                // يسمح بأي Origin داخل نفس الشبكة
+                return origin.StartsWith("http://localhost")
+                    || origin.StartsWith("http://192.168.")
+                    || origin.StartsWith("http://10.")
+                    || origin.StartsWith("http://172.");
+            });
+    });
+});
+
+
 builder.Services.AddAuthorization();
 
 // Register Services
@@ -80,9 +102,21 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.IActivityLogServi
 builder.Services.AddScoped<backend_project.Services.Interfaces.IPermissionService, backend_project.Services.PermissionService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IOAuthService, backend_project.Services.OAuthService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IAuthenticationService, backend_project.Services.AuthenticationService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IProfileService, backend_project.Services.ProfileService>();
 
 // Register HttpClient for OAuth service
 builder.Services.AddHttpClient();
+
+// Register Media Services (MinIO, Media, Admin, Video Processing)
+builder.Services.AddMediaServices(builder.Configuration);
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
+
 
 // Configure Google OAuth (if credentials are provided)
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
@@ -140,6 +174,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();

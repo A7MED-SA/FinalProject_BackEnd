@@ -623,10 +623,6 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .IsUnique();
 
         modelBuilder.Entity<Session>()
-            .HasIndex(s => s.TokenHash)
-            .IsUnique();
-
-        modelBuilder.Entity<Session>()
             .HasIndex(s => s.RefreshTokenHash)
             .IsUnique();
 

@@ -55,7 +55,8 @@ public class Address : BaseEntity
 
     [Column("deleted_at")]
     public DateTime? DeletedAt { get; set; }
-
+    [Column("updated_at")]
+    public DateTime? UpdatedAt { get; set; }
     // Navigation Properties
     [ForeignKey("UserId")]
     public virtual User User { get; set; } = null!;
