@@ -16,9 +16,16 @@ public class User : IdentityUser<Guid>
         IsActive = false;
     }
 
-    [Column("name")]
-    [MaxLength(255)]
-    public string Name { get; set; } = string.Empty;
+    [NotMapped]
+    public string FullName => $"{FirstName} {LastName}".Trim();
+    
+    [Column("first_name")]
+    [MaxLength(100)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Column("last_name")]
+    [MaxLength(100)]
+    public string LastName { get; set; } = string.Empty;
 
     [Column("profile_image_file_id")]
     public Guid? ProfileImageFileId { get; set; }

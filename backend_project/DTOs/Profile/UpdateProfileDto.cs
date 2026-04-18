@@ -8,8 +8,11 @@ namespace backend_project.DTOs.Profile;
 /// </summary>
 public class UpdateProfileDto
 {
-    [MaxLength(255)]
-    public string? Name { get; set; }
+    [MaxLength(100)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [MaxLength(100)]
+    public string LastName { get; set; } = string.Empty;
 
     [MaxLength(1000)]
     public string? Bio { get; set; }

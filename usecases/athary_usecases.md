@@ -624,31 +624,174 @@ Weighted =
 - Cleanup: Room deleted, temp files cleaned, chat logs saved 90 days
 
 ---
+## UC-023: Request Role Upgrade (Student → Instructor)
 
+**Primary Actor:** Student  
+**Secondary Actor:** Admin  
+**Goal:** Request upgrade from Student to Instructor  
+**Scope:** User Management  
+**Trigger:** Student selects "Become an Instructor"
+
+### Preconditions
+- User is logged in
+- User role is Student
+
+### Main Flow
+1. Student opens profile settings
+2. Student selects "Request Instructor Role"
+3. System displays application form
+4. Student enters expertise, experience, and biography
+5. Student uploads supporting documents (CV, certificates, portfolio links)
+6. Student submits request
+7. System validates input data
+8. System creates upgrade request with status "Pending"
+9. System notifies Admin
+
+### Alternative Flows
+- 4a. Required information missing → System displays validation errors
+
+### Postconditions
+- Upgrade request stored
+- Request pending admin review
+
+### Business Rules
+- Only one active upgrade request per user
+- Max document size: 5MB
+- Allowed formats: PDF, JPG, PNG
+
+---
+## UC-024: Review Role Upgrade Request
+
+**Primary Actor:** Admin  
+**Goal:** Review and decide on role upgrade request  
+**Scope:** Administration
+
+### Preconditions
+- Admin is logged in
+- Pending upgrade request exists
+
+### Main Flow
+1. Admin opens "Role Upgrade Requests"
+2. System displays list of pending requests
+3. Admin selects a request
+4. System displays applicant details and documents
+5. Admin approves or rejects request
+6. System updates request status
+7. If approved:
+   - System updates user role to Instructor
+   - System grants instructor permissions
+8. System notifies user of decision
+
+### Postconditions
+- User role updated or request rejected
+
+### Business Rules
+- All decisions must be audit-logged
+- Optional admin notes may be included
+
+---
+## UC-025: Issue Course Certificate
+
+**Primary Actor:** System  
+**Secondary Actor:** Student  
+**Goal:** Issue course completion certificate  
+**Scope:** Certification System
+
+### Preconditions
+- Student enrolled in course
+- Course completion equals 100%
+- All required assessments passed
+
+### Main Flow
+1. System verifies completion criteria
+2. System generates certificate with unique ID
+3. System stores certificate record
+4. System enables certificate download (PDF)
+5. System notifies student
+
+### Postconditions
+- Certificate issued and linked to student
+
+### Business Rules
+- Certificate ID must be unique
+- Issued certificates are immutable
+
+---
+
+## UC-026: Verify Certificate
+
+**Primary Actor:** External User  
+**Goal:** Verify authenticity of certificate  
+**Scope:** Certification System
+
+### Main Flow
+1. User enters certificate ID
+2. System validates certificate
+3. System displays verification result
+
+### Business Rules
+- No personal data is exposed during verification
+
+---
+## UC-027: View Student Performance Report
+
+**Primary Actor:** Student  
+**Goal:** View personal learning performance  
+**Scope:** Reports & Analytics
+
+### Main Flow
+1. Student opens dashboard
+2. Student selects "Performance Report"
+3. System displays:
+   - Course progress
+   - Quiz scores
+   - Completion percentages
+4. Student filters results by course or date
+
+--- 
+## UC-028: Generate Quiz Using AI
+
+**Primary Actor:** Instructor  
+**Secondary Actor:** System (AI Service)  
+**Goal:** Automatically generate quiz questions using AI  
+**Scope:** AI Assessment Engine
+
+### Preconditions
+- Instructor logged in
+- Course content exists
+
+### Main Flow
+1. Instructor selects "Generate Quiz with AI"
+2. System prompts for content source (text or video)
+3. Instructor confirms generation
+4. System sends content to AI service
+5. AI service generates quiz questions
+6. System displays generated quiz
+7. Instructor reviews and approves questions
+8. System saves quiz to course
+
+### Business Rules
+- Instructor approval required before publishing
+- AI-generated content is editable
+---
 # 7. Remaining Sections
 
 ## Pending Use Cases (54)
 
 ### Communication (3 UCs)
-- UC-023: Send Private Message
-- UC-024: Post Question in Course
-- UC-025: Send Group Notification
-
-### Certificates (2 UCs)
-- UC-026: Issue Certificate
-- UC-027: Verify Certificate
+- UC-029: Send Private Message
+- UC-030: Post Question in Course
+- UC-031: Send Group Notification
 
 ### Reports & Analytics (3 UCs)
-- UC-028: View Student Performance Report
-- UC-029: View Teacher Analytics
-- UC-030: View System Reports (Admin)
+- UC-032: View Teacher Analytics
+- UC-033: View System Reports (Admin)
 
 ### AI Chatbot (5 UCs)
-- UC-031: Generate Quiz with AI
-- UC-032: Create Google Form Automatically
-- UC-033: Analyze Student Answers with AI
-- UC-034: Get Help from Chatbot (Student)
-- UC-035: Generate Educational Content with AI
+- UC-034: Create Google Form Automatically
+- UC-035: Analyze Student Answers with AI
+- UC-036: Get Help from Chatbot (Student)
+- UC-037: Generate Educational Content with AI
 
 [... continues with remaining 41 UCs]
 

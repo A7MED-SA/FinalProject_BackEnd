@@ -37,7 +37,11 @@ public class TeacherRequestDocument : BaseEntity
 
 public enum DocumentType
 {
-    Cv,
+    CV,
     Certificate,
-    PortfolioLink
+    IDCard,
+    Degree,
+    PortfolioLink,
+    Transcript,
+    Other
 }

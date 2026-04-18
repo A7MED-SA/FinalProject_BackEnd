@@ -44,7 +44,8 @@ public static class DbSeeder
         {
             adminUser = new User
             {
-                Name = "System Administrator",
+                FirstName = "System",
+                LastName = "Administrator",
                 Email = adminEmail,
                 UserName = adminEmail,
                 EmailConfirmed = true,

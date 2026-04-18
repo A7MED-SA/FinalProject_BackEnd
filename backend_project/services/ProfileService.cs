@@ -53,7 +53,7 @@ public class ProfileService : IProfileService
         return new PublicProfileDto
         {
             Id = user.Id,
-            Name = user.Name,
+            FullName = user.FullName,
             Bio = user.Bio,
             Nationality = user.Nationality,
             ProfileImageUrl = user.ProfileImageFile != null
@@ -76,8 +76,11 @@ public class ProfileService : IProfileService
             ?? throw new KeyNotFoundException("User not found");
 
         // Update only provided fields
-        if (dto.Name != null)
-            user.Name = dto.Name;
+        if (dto.FirstName != null)
+            user.FirstName = dto.FirstName;
+
+        if (dto.LastName != null)
+            user.LastName = dto.LastName;
 
         if (dto.Bio != null)
             user.Bio = dto.Bio;
@@ -384,7 +387,7 @@ public class ProfileService : IProfileService
         return new ProfileDto
         {
             Id = user.Id,
-            Name = user.Name,
+            FullName = user.FullName,
             Email = user.Email ?? string.Empty,
             Bio = user.Bio,
             Gender = user.Gender,

@@ -16,4 +16,7 @@ public interface IEmailService
     /// Generic email sending method
     /// </summary>
     Task SendEmailAsync(string toEmail, string subject, string htmlBody);
+    Task SendTeacherRequestApprovedAsync(string email, string name, string? adminNotes);
+    Task SendTeacherRequestRejectedAsync(string email, string name, string? rejectionReason, string? adminNotes);
+    Task SendTeacherRequestMoreInfoAsync(string email, string name, string? adminNotes);
 }

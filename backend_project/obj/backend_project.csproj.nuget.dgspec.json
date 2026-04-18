@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj": {}
+    "D:\\Ahmed\\New folder (2)\\FinalProject_BackEnd\\backend_project\\backend_project.csproj": {}
   },
   "projects": {
-    "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj": {
+    "D:\\Ahmed\\New folder (2)\\FinalProject_BackEnd\\backend_project\\backend_project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj",
+        "projectUniqueName": "D:\\Ahmed\\New folder (2)\\FinalProject_BackEnd\\backend_project\\backend_project.csproj",
         "projectName": "backend_project",
-        "projectPath": "D:\\Final_Project\\BackEnd\\backend_project\\backend_project.csproj",
+        "projectPath": "D:\\Ahmed\\New folder (2)\\FinalProject_BackEnd\\backend_project\\backend_project.csproj",
         "packagesPath": "C:\\Users\\Electronica Care\\.nuget\\packages\\",
-        "outputPath": "D:\\Final_Project\\BackEnd\\backend_project\\obj\\",
+        "outputPath": "D:\\Ahmed\\New folder (2)\\FinalProject_BackEnd\\backend_project\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -26,7 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://reactjs.net/packages/": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -45,12 +45,24 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "FluentValidation.AspNetCore": {
+              "target": "Package",
+              "version": "[11.3.1, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
             "Google.Apis.Auth": {
               "target": "Package",
               "version": "[1.68.0, )"
@@ -131,7 +143,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.309/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

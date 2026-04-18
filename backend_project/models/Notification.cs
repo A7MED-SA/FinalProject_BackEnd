@@ -23,6 +23,10 @@ public class Notification : BaseEntity
     [Column("message")]
     public string? Message { get; set; }
 
+    [Column("icon")]
+    [MaxLength(50)]
+    public string? Icon { get; set; }
+
     [Column("link_url")]
     [MaxLength(500)]
     public string? LinkUrl { get; set; }
@@ -46,5 +50,8 @@ public enum NotificationType
     Course,
     Payment,
     System,
-    Message
+    Message,
+    TeacherRequest,  // ← جديد
+    Enrollment,      // ← جديد
+    Assignment       // ← جديد
 }

@@ -4,10 +4,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using backend_project.Services.Notifications;
+using backend_project.Services.TeacherRequests;
+using backend_project.Hubs;
 using backend_project.Data;
 using backend_project.Models;
 using backend_project.Configuration;
 using backend_project.Extensions;
+using FluentValidation; // إضافة FluentValidation
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,7 +93,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-
 builder.Services.AddAuthorization();
 
 // Register Services
@@ -103,9 +106,19 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.IPermissionServic
 builder.Services.AddScoped<backend_project.Services.Interfaces.IOAuthService, backend_project.Services.OAuthService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IAuthenticationService, backend_project.Services.AuthenticationService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IProfileService, backend_project.Services.ProfileService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ITeacherRequestService, TeacherRequestService>();
+
+// Register ALL FluentValidation Validators (الحل الصحيح)
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 // Register HttpClient for OAuth service
 builder.Services.AddHttpClient();
+builder.Services.AddSignalR();
+
+// Services
+
+// SignalR Hubs
 
 // Register Media Services (MinIO, Media, Admin, Video Processing)
 builder.Services.AddMediaServices(builder.Configuration);
@@ -116,7 +129,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter());
     });
-
 
 // Configure Google OAuth (if credentials are provided)
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
@@ -143,7 +155,7 @@ if (!string.IsNullOrEmpty(microsoftClientId))
 }
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi  
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -181,5 +193,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

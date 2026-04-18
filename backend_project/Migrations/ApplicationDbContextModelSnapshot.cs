@@ -1088,6 +1088,11 @@ namespace backend_project.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("icon");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit")
                         .HasColumnName("is_read");
@@ -2263,6 +2268,12 @@ namespace backend_project.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("first_name");
+
                     b.Property<int?>("Gender")
                         .HasMaxLength(50)
                         .HasColumnType("int")
@@ -2276,17 +2287,17 @@ namespace backend_project.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("last_login");
 
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("last_name");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("name");
 
                     b.Property<string>("Nationality")
                         .HasMaxLength(100)
