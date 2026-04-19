@@ -11,7 +11,8 @@ using backend_project.Data;
 using backend_project.Models;
 using backend_project.Configuration;
 using backend_project.Extensions;
-using FluentValidation; // إضافة FluentValidation
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,8 +109,12 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.IAuthenticationSe
 builder.Services.AddScoped<backend_project.Services.Interfaces.IProfileService, backend_project.Services.ProfileService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITeacherRequestService, TeacherRequestService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ICategoryService, backend_project.Services.Implementations.CategoryService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseService, backend_project.Services.Implementations.CourseService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ISectionService, backend_project.Services.Implementations.SectionService>();
 
-// Register ALL FluentValidation Validators (الحل الصحيح)
+// Register ALL FluentValidation Validators
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 // Register HttpClient for OAuth service
@@ -128,6 +133,19 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter());
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(e => e.Value.Errors.Count > 0)
+                .SelectMany(x => x.Value.Errors.Select(e => e.ErrorMessage))
+                .ToList();
+
+            var response = backend_project.DTOs.ApiResponse<object>.FailureResponse("Validation failed", errors);
+            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(response);
+        };
     });
 
 // Configure Google OAuth (if credentials are provided)
@@ -184,6 +202,9 @@ if (app.Environment.IsDevelopment())
         options.DocumentPath = "/openapi/v1.json";
     });
 }
+
+// Add Global Exception Handler
+app.UseMiddleware<backend_project.Middlewares.ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
