@@ -349,18 +349,21 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("CategoryImageFileId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("category_image_file_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("deleted_at");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("description");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("image_url");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit")
@@ -387,6 +390,8 @@ namespace backend_project.Migrations
                         .HasColumnName("slug");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryImageFileId");
 
                     b.HasIndex("ParentCategoryId");
 
@@ -714,6 +719,10 @@ namespace backend_project.Migrations
                         .HasColumnType("int")
                         .HasColumnName("language");
 
+                    b.Property<DateTime?>("LastContentUpdateAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("last_content_update_at");
+
                     b.Property<int>("Level")
                         .HasMaxLength(20)
                         .HasColumnType("int")
@@ -726,6 +735,10 @@ namespace backend_project.Migrations
                     b.Property<DateTime?>("PublishedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("published_at");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("rejection_reason");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -752,6 +765,10 @@ namespace backend_project.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int")
+                        .HasColumnName("version");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApprovedBy");
@@ -768,6 +785,88 @@ namespace backend_project.Migrations
                         .IsUnique();
 
                     b.ToTable("courses");
+                });
+
+            modelBuilder.Entity("backend_project.Models.CourseEditRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AdminNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("admin_notes");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("course_id");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("expires_at");
+
+                    b.Property<bool>("IsEmergency")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_emergency");
+
+                    b.Property<string>("JsonPayload")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("json_payload");
+
+                    b.Property<int>("Operation")
+                        .HasColumnType("int")
+                        .HasColumnName("operation");
+
+                    b.Property<int>("RequestType")
+                        .HasColumnType("int")
+                        .HasColumnName("request_type");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("requested_at");
+
+                    b.Property<Guid>("RequestedBy")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("requested_by");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("reviewed_at");
+
+                    b.Property<Guid?>("ReviewedBy")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("reviewed_by");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("TargetItemId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("target_item_id");
+
+                    b.Property<Guid?>("TargetSectionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("target_section_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsEmergency")
+                        .HasDatabaseName("IX_CourseEditRequests_IsEmergency")
+                        .HasFilter("is_emergency = 1");
+
+                    b.HasIndex("RequestedAt")
+                        .HasDatabaseName("IX_CourseEditRequests_RequestedAt");
+
+                    b.HasIndex("RequestedBy");
+
+                    b.HasIndex("ReviewedBy");
+
+                    b.HasIndex("CourseId", "Status")
+                        .HasDatabaseName("IX_CourseEditRequests_CourseId_Status");
+
+                    b.ToTable("course_edit_requests");
                 });
 
             modelBuilder.Entity("backend_project.Models.CourseLearningOutcome", b =>
@@ -2751,10 +2850,16 @@ namespace backend_project.Migrations
 
             modelBuilder.Entity("backend_project.Models.Category", b =>
                 {
+                    b.HasOne("backend_project.Models.UploadedFile", "CategoryImageFile")
+                        .WithMany()
+                        .HasForeignKey("CategoryImageFileId");
+
                     b.HasOne("backend_project.Models.Category", "ParentCategory")
                         .WithMany("SubCategories")
                         .HasForeignKey("ParentCategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CategoryImageFile");
 
                     b.Navigation("ParentCategory");
                 });
@@ -2909,6 +3014,32 @@ namespace backend_project.Migrations
                     b.Navigation("Creator");
 
                     b.Navigation("IntroVideoFile");
+                });
+
+            modelBuilder.Entity("backend_project.Models.CourseEditRequest", b =>
+                {
+                    b.HasOne("backend_project.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend_project.Models.User", "RequestedByUser")
+                        .WithMany()
+                        .HasForeignKey("RequestedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("backend_project.Models.User", "ReviewedByUser")
+                        .WithMany()
+                        .HasForeignKey("ReviewedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Course");
+
+                    b.Navigation("RequestedByUser");
+
+                    b.Navigation("ReviewedByUser");
                 });
 
             modelBuilder.Entity("backend_project.Models.CourseLearningOutcome", b =>

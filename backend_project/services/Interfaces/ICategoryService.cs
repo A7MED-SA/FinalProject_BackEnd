@@ -12,4 +12,5 @@ public interface ICategoryService
     Task<CategoryResponseDto> CreateCategoryAsync(CreateCategoryDto dto);
     Task<CategoryResponseDto> UpdateCategoryAsync(Guid id, UpdateCategoryDto dto);
     Task DeleteCategoryAsync(Guid id);
+    Task<CategoryResponseDto> SetCategoryImageAsync(Guid categoryId, Guid fileId, Guid userId);
 }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using backend_project.DTOs.Category;
+using System.Security.Claims;
 using backend_project.Services.Interfaces;
 
 namespace backend_project.Controllers;
@@ -56,5 +57,40 @@ public class CategoryController : ControllerBase
     {
         await _categoryService.DeleteCategoryAsync(id);
         return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Category deleted successfully"));
+    }
+    [HttpPut("{categoryId}/image")]
+[Authorize(Roles = "Admin")] // ⚠️ تأكد من الصلاحيات
+public async Task<IActionResult> SetCategoryImage(
+    Guid categoryId, 
+    [FromBody] SetCategoryImageRequest request)
+{
+    try
+    {
+        var userId = GetUserId();
+        var result = await _categoryService.SetCategoryImageAsync(
+            categoryId, 
+            request.FileId,
+            userId);
+        
+        return Ok(result);
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return NotFound(new { message = ex.Message });
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+        return Unauthorized(new { message = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return BadRequest(new { message = ex.Message });
+    }
+}
+    private Guid GetUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? throw new UnauthorizedAccessException("User not authenticated");
+        return Guid.Parse(userIdClaim);
     }
 }

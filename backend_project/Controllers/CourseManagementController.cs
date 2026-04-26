@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using backend_project.DTOs.Course;
+
 using backend_project.Services.Interfaces;
 
 namespace backend_project.Controllers;
@@ -14,15 +15,19 @@ namespace backend_project.Controllers;
 public class CourseManagementController : ControllerBase
 {
     private readonly ICourseService _courseService;
+    private readonly ILogger<CourseManagementController> _logger;
 
-    public CourseManagementController(ICourseService courseService)
+
+    public CourseManagementController(ICourseService courseService, ILogger<CourseManagementController> logger)
     {
         _courseService = courseService;
+        _logger = logger;
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDto dto)
     {
+            _logger.LogInformation("Course {Title} {Slug} is creating ...", dto.Title, dto.Slug);
         var userId = GetUserId();
         var result = await _courseService.CreateCourseAsync(userId, dto);
         return CreatedAtAction(nameof(GetCourseById), new { id = result.Id }, backend_project.DTOs.ApiResponse<CourseDetailsDto>.SuccessResponse(result));
@@ -82,6 +87,29 @@ public class CourseManagementController : ControllerBase
         await _courseService.SubmitForReviewAsync(id, userId);
         return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Course submitted for review successfully"));
     }
+    [HttpPut("{courseId}/image")]
+[Authorize]
+public async Task<IActionResult> SetCourseImage(
+    Guid courseId, 
+    [FromBody] SetCourseImageRequest request
+    ) // ⚠️ طريقة استخراج الـ UserID حسب الـ Auth عندك
+{
+    try
+    {
+    var userId = GetUserId();
+        var result = await _courseService.SetCourseImageAsync(
+            courseId, request.FileId, userId);
+        return Ok(result);
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+        return StatusCode(403, new { message = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return BadRequest(new { message = ex.Message });
+    }
+}
 
     private Guid GetUserId()
     {

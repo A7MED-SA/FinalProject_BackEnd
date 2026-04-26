@@ -38,5 +38,11 @@ public enum CourseLogAction
     Created,
     Updated,
     Published,
-    Archived
+    Archived,
+
+    // Edit Approval Workflow
+    EditRequestSubmitted,
+    EditRequestApproved,
+    EditRequestRejected,
+    EditRequestCancelled
 }

@@ -76,6 +76,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
     public DbSet<Report> Reports { get; set; }
     public DbSet<ActivityLog> ActivityLogs { get; set; }
     public DbSet<CourseLog> CourseLogs { get; set; }
+    public DbSet<CourseEditRequest> CourseEditRequests { get; set; }
     public DbSet<SystemSetting> SystemSettings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -610,6 +611,39 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .WithMany()
             .HasForeignKey(cl => cl.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // CourseEditRequest Relationships
+        modelBuilder.Entity<CourseEditRequest>()
+            .HasOne(r => r.Course)
+            .WithMany()
+            .HasForeignKey(r => r.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CourseEditRequest>()
+            .HasOne(r => r.RequestedByUser)
+            .WithMany()
+            .HasForeignKey(r => r.RequestedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CourseEditRequest>()
+            .HasOne(r => r.ReviewedByUser)
+            .WithMany()
+            .HasForeignKey(r => r.ReviewedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // CourseEditRequest Indexes
+        modelBuilder.Entity<CourseEditRequest>()
+            .HasIndex(r => new { r.CourseId, r.Status })
+            .HasDatabaseName("IX_CourseEditRequests_CourseId_Status");
+
+        modelBuilder.Entity<CourseEditRequest>()
+            .HasIndex(r => r.RequestedAt)
+            .HasDatabaseName("IX_CourseEditRequests_RequestedAt");
+
+        modelBuilder.Entity<CourseEditRequest>()
+            .HasIndex(r => r.IsEmergency)
+            .HasFilter("is_emergency = 1")
+            .HasDatabaseName("IX_CourseEditRequests_IsEmergency");
 
         modelBuilder.Entity<SystemSetting>()
             .HasOne(ss => ss.UpdatedByUser)

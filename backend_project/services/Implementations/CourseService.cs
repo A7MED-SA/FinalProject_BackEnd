@@ -3,25 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using backend_project.Data;
 using backend_project.Models;
 using backend_project.DTOs.Course;
 using backend_project.Services.Interfaces;
+using backend_project.Configuration;
 
 namespace backend_project.Services.Implementations;
 
 public class CourseService : ICourseService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IObjectStorage _objectStorage;
+    private readonly MinioSettings _minioSettings;
+    private readonly ILogger<CourseService> _logger;
 
-    public CourseService(ApplicationDbContext context)
+    public CourseService(
+        ApplicationDbContext context,
+        IObjectStorage objectStorage,
+        IOptions<MinioSettings> minioSettings,
+        ILogger<CourseService> logger)
     {
         _context = context;
+        _objectStorage = objectStorage;
+        _minioSettings = minioSettings.Value;
+        _logger = logger;
     }
+
+    #region 👨‍🏫 Instructor Operations
 
     public async Task<CourseDetailsDto> CreateCourseAsync(Guid instructorId, CreateCourseDto dto)
     {
-        var categoryExists = await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId);
+        var categoryExists = await _context.Categories
+            .AnyAsync(c => c.Id == dto.CategoryId && c.DeletedAt == null);
+        
         if (!categoryExists)
             throw new KeyNotFoundException("Category not found.");
 
@@ -29,7 +45,9 @@ public class CourseService : ICourseService
         {
             Id = Guid.NewGuid(),
             Title = dto.Title,
-            Slug = dto.Slug,
+            Slug = !string.IsNullOrWhiteSpace(dto.Slug) 
+                ? dto.Slug 
+                : GenerateSlug(dto.Title),
             Description = dto.Description,
             CategoryId = dto.CategoryId,
             Level = dto.Level,
@@ -37,7 +55,8 @@ public class CourseService : ICourseService
             Price = dto.Price,
             CreatedBy = instructorId,
             Status = CourseStatus.Draft,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         _context.Courses.Add(course);
@@ -46,66 +65,90 @@ public class CourseService : ICourseService
         return await GetCourseByIdAsync(course.Id);
     }
 
-    public async Task<CourseDetailsDto> UpdateCourseAsync(Guid courseId, Guid instructorId, UpdateCourseDto dto)
+public async Task<CourseDetailsDto> UpdateCourseAsync(Guid courseId, Guid instructorId, UpdateCourseDto dto)
+{
+    var course = await GetCourseForInstructorAsync(courseId, instructorId);
+    _logger.LogInformation("Course {courseId} {courseTitle} {dto.Title} {dto.Slug} is updating ...", courseId, course.Title, dto.Title, dto.Slug);
+    // 1️⃣ تحديث الـ Title و الـ Slug
+    if (!string.IsNullOrWhiteSpace(dto.Title))
     {
-        var course = await GetCourseForInstructorAsync(courseId, instructorId);
-
         course.Title = dto.Title;
-        course.Slug = dto.Slug;
-        course.Description = dto.Description;
-        course.CategoryId = dto.CategoryId;
-        course.Level = dto.Level;
-        course.Language = dto.Language;
-        course.Price = dto.Price;
-        course.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        return await GetCourseByIdAsync(course.Id);
+        
+        // لو الـ Slug ماتبعتش، نولّده من العنوان الجديد
+        if (string.IsNullOrWhiteSpace(dto.Slug))
+        {
+            course.Slug = GenerateSlug(dto.Title);
+        }
     }
-
-    public async Task<CourseDetailsDto> GetCourseByIdAsync(Guid courseId)
+    
+    // لو المستخدم بعت Slug جديد صراحةً، نستخدمه
+    if (!string.IsNullOrWhiteSpace(dto.Slug))
     {
-        var course = await _context.Courses
-            .Include(c => c.Category)
-            .Include(c => c.Creator)
-            .Include(c => c.CourseRequirements)
-            .Include(c => c.CourseLearningOutcomes)
-            .FirstOrDefaultAsync(c => c.Id == courseId);
-
-        if (course == null)
-            throw new KeyNotFoundException("Course not found.");
-
-        return MapToDetailsDto(course);
+        course.Slug = dto.Slug;
     }
+
+    // 2️⃣ تحديث الحقول الأخرى (بس لو موجودة في الـ Request)
+    if (dto.Description != null)
+        course.Description = dto.Description;
+
+    if (dto.CategoryId.HasValue)
+    {
+        // التحقق من وجود الفئة الجديدة
+        var categoryExists = await _context.Categories
+            .AnyAsync(c => c.Id == dto.CategoryId.Value && c.DeletedAt == null);
+        if (!categoryExists)
+            throw new KeyNotFoundException("Category not found.");
+        
+        course.CategoryId = dto.CategoryId.Value;
+    }
+
+    if (dto.Level.HasValue)
+        course.Level = dto.Level.Value;
+
+    if (dto.Language.HasValue)
+        course.Language = dto.Language.Value;
+
+    if (dto.Price.HasValue)
+        course.Price = dto.Price.Value;
+
+    course.UpdatedAt = DateTime.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    return await GetCourseByIdAsync(course.Id);
+}
 
     public async Task<CourseRequirementDto> AddRequirementAsync(Guid courseId, Guid instructorId, AddRequirementDto dto)
     {
         var course = await GetCourseForInstructorAsync(courseId, instructorId);
 
-        var req = new CourseRequirement
+        var requirement = new CourseRequirement
         {
             Id = Guid.NewGuid(),
             CourseId = course.Id,
-            Description = dto.RequirementText
+            Description = dto.RequirementText.Trim()
         };
 
-        _context.CourseRequirements.Add(req);
+        _context.CourseRequirements.Add(requirement);
         await _context.SaveChangesAsync();
 
-        return new CourseRequirementDto { Id = req.Id, RequirementText = req.Description };
+        return new CourseRequirementDto 
+        { 
+            Id = requirement.Id, 
+            RequirementText = requirement.Description 
+        };
     }
 
     public async Task RemoveRequirementAsync(Guid courseId, Guid requirementId, Guid instructorId)
     {
         await GetCourseForInstructorAsync(courseId, instructorId);
 
-        var req = await _context.CourseRequirements
+        var requirement = await _context.CourseRequirements
             .FirstOrDefaultAsync(r => r.Id == requirementId && r.CourseId == courseId);
 
-        if (req != null)
+        if (requirement != null)
         {
-            _context.CourseRequirements.Remove(req);
+            _context.CourseRequirements.Remove(requirement);
             await _context.SaveChangesAsync();
         }
     }
@@ -118,13 +161,17 @@ public class CourseService : ICourseService
         {
             Id = Guid.NewGuid(),
             CourseId = course.Id,
-            Description = dto.OutcomeText
+            Description = dto.OutcomeText.Trim()
         };
 
         _context.CourseLearningOutcomes.Add(outcome);
         await _context.SaveChangesAsync();
 
-        return new CourseLearningOutcomeDto { Id = outcome.Id, OutcomeText = outcome.Description };
+        return new CourseLearningOutcomeDto 
+        { 
+            Id = outcome.Id, 
+            OutcomeText = outcome.Description 
+        };
     }
 
     public async Task RemoveLearningOutcomeAsync(Guid courseId, Guid outcomeId, Guid instructorId)
@@ -148,16 +195,94 @@ public class CourseService : ICourseService
         if (course.Status != CourseStatus.Draft)
             throw new InvalidOperationException("Only draft courses can be submitted for review.");
 
+        if (string.IsNullOrWhiteSpace(course.Title) || 
+            string.IsNullOrWhiteSpace(course.Description) || 
+            course.CategoryId == Guid.Empty)
+        {
+            throw new InvalidOperationException("Course must have title, description, and category before submission.");
+        }
+
         course.Status = CourseStatus.PendingReview;
         course.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
     }
 
+    #endregion
+
+    #region 👁️ Public Read Operations
+
+    public async Task<CourseDetailsDto> GetCourseByIdAsync(Guid courseId)
+    {
+        var course = await _context.Courses
+            .Include(c => c.Category)
+            .Include(c => c.Creator)
+            .Include(c => c.CourseRequirements)
+            .Include(c => c.CourseLearningOutcomes)
+            .Include(c => c.CourseImageFile)
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null);
+
+        if (course == null)
+            throw new KeyNotFoundException("Course not found.");
+
+        return MapToDetailsDto(course);
+    }
+
+    public async Task<List<CourseSummaryDto>> GetPublishedCoursesAsync(CourseFilterDto? filters = null)
+{
+    // 1️⃣ ابدأ بالـ Query الأساسي بدون Includes
+    var query = _context.Courses
+        .Where(c => c.Status == CourseStatus.Published && c.DeletedAt == null)
+        .AsQueryable();
+
+    // 2️⃣ طبق الفلاتر على الـ Query الأساسي
+    if (filters?.CategoryId.HasValue == true)
+        query = query.Where(c => c.CategoryId == filters.CategoryId.Value);
+
+    if (!string.IsNullOrWhiteSpace(filters?.SearchTerm))
+    {
+        var term = filters.SearchTerm.ToLower();
+        query = query.Where(c => 
+            c.Title.ToLower().Contains(term) || 
+            c.Description.ToLower().Contains(term));
+    }
+
+    if (filters?.MinPrice.HasValue == true)
+        query = query.Where(c => c.Price >= filters.MinPrice.Value);
+
+    if (filters?.MaxPrice.HasValue == true)
+        query = query.Where(c => c.Price <= filters.MaxPrice.Value);
+
+    // 3️⃣ NOW أضف الـ Includes بعد ما تخلص من الفلاتر
+    query = query
+        .Include(c => c.Category)
+        .Include(c => c.CourseImageFile);
+
+    // 4️⃣ نفّذ الاستعلام وجيب البيانات
+    var courses = await query.ToListAsync();
+
+    // 5️⃣ رتّب في الذاكرة (بعد التنفيذ)
+    courses = filters?.SortBy switch
+    {
+        "price_asc" => courses.OrderBy(c => c.Price).ToList(),
+        "price_desc" => courses.OrderByDescending(c => c.Price).ToList(),
+        "newest" => courses.OrderByDescending(c => c.CreatedAt).ToList(),
+        _ => courses.OrderByDescending(c => c.CreatedAt).ToList()
+    };
+
+    return courses.Select(MapToSummaryDto).ToList();
+}
+
+    #endregion
+
+    #region 👮 Admin Operations
+
     public async Task<List<CourseSummaryDto>> GetPendingCoursesAsync()
     {
         var courses = await _context.Courses
-            .Where(c => c.Status == CourseStatus.PendingReview)
+            .Where(c => c.Status == CourseStatus.PendingReview && c.DeletedAt == null)
+            .Include(c => c.Creator)
+            .Include(c => c.Category)
             .OrderBy(c => c.CreatedAt)
             .ToListAsync();
 
@@ -166,9 +291,9 @@ public class CourseService : ICourseService
 
     public async Task ApproveCourseAsync(Guid courseId, Guid adminId)
     {
-        var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
-        if (course == null)
-            throw new KeyNotFoundException("Course not found.");
+        var course = await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
 
         if (course.Status != CourseStatus.PendingReview)
             throw new InvalidOperationException("Course is not pending review.");
@@ -184,32 +309,134 @@ public class CourseService : ICourseService
 
     public async Task RejectCourseAsync(Guid courseId, Guid adminId, string reason)
     {
-        var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
-        if (course == null)
-            throw new KeyNotFoundException("Course not found.");
+        var course = await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
 
         if (course.Status != CourseStatus.PendingReview)
             throw new InvalidOperationException("Course is not pending review.");
 
         course.Status = CourseStatus.Draft;
+        course.RejectionReason = reason;
         course.UpdatedAt = DateTime.UtcNow;
-        // Optionally store the reason in a new CourseFeedback entity or ActivityLog
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task SoftDeleteCourseAsync(Guid courseId, Guid instructorId)
+    {
+        var course = await GetCourseForInstructorAsync(courseId, instructorId);
+        
+        course.DeletedAt = DateTime.UtcNow;
+        course.UpdatedAt = DateTime.UtcNow;
         
         await _context.SaveChangesAsync();
     }
 
+    #endregion
+
+    #region 🖼️ Image Management
+
+    public async Task<CourseDetailsDto> SetCourseImageAsync(Guid courseId, Guid fileId, Guid userId)
+    {
+        var course = await _context.Courses
+            .Include(c => c.CourseImageFile)
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
+
+        if (course.CreatedBy != userId)
+            throw new UnauthorizedAccessException("You do not have permission to modify this course.");
+
+        var file = await _context.Files.FirstOrDefaultAsync(f =>
+            f.Id == fileId &&
+            f.FileType == StoredFileType.Image &&
+            f.Status == FileStatus.Ready &&
+            f.DeletedAt == null)
+            ?? throw new InvalidOperationException("Invalid image file");
+
+        if (file.UploadedBy != userId)
+            throw new UnauthorizedAccessException("You are not authorized to use this file");
+
+        // Soft Delete للصورة القديمة
+        if (course.CourseImageFileId.HasValue && course.CourseImageFileId != file.Id)
+        {
+            var oldFile = await _context.Files
+                .FirstOrDefaultAsync(f => f.Id == course.CourseImageFileId && f.DeletedAt == null);
+
+            if (oldFile != null)
+            {
+                oldFile.DeletedAt = DateTime.UtcNow;
+                oldFile.Status = FileStatus.Deleted;
+            }
+        }
+
+        file.Visibility = FileVisibility.Public;
+        course.CourseImageFileId = file.Id;
+        course.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return await GetCourseByIdAsync(course.Id);
+    }
+
+    public async Task<CourseDetailsDto> RemoveCourseImageAsync(Guid courseId, Guid userId)
+    {
+        var course = await GetCourseForInstructorAsync(courseId, userId);
+
+        if (!course.CourseImageFileId.HasValue)
+            throw new InvalidOperationException("Course has no image to remove.");
+
+        var file = await _context.Files
+            .FirstOrDefaultAsync(f => f.Id == course.CourseImageFileId && f.DeletedAt == null);
+
+        if (file != null)
+        {
+            file.DeletedAt = DateTime.UtcNow;
+            file.Status = FileStatus.Deleted;
+        }
+
+        course.CourseImageFileId = null;
+        course.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return await GetCourseByIdAsync(course.Id);
+    }
+
+    #endregion
+
+    #region 🔐 Helper Methods
+
     private async Task<Course> GetCourseForInstructorAsync(Guid courseId, Guid instructorId)
     {
-        var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
-        
-        if (course == null)
-            throw new KeyNotFoundException("Course not found.");
+        var course = await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
 
         if (course.CreatedBy != instructorId)
             throw new UnauthorizedAccessException("You do not have permission to modify this course.");
 
         return course;
     }
+
+    private string GenerateSlug(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            return string.Empty;
+
+        var slug = title.Trim().ToLowerInvariant();
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\s-]", "");
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"\s+", "-").Trim('-');
+        
+        while (slug.Contains("--"))
+            slug = slug.Replace("--", "-");
+
+        return slug;
+    }
+
+    #endregion
+
+    #region 🗂️ DTO Mapping
 
     private CourseDetailsDto MapToDetailsDto(Course course)
     {
@@ -222,25 +449,42 @@ public class CourseService : ICourseService
             CategoryId = course.CategoryId,
             CategoryName = course.Category?.Name ?? string.Empty,
             CreatedBy = course.CreatedBy,
-            CreatorName = course.Creator != null ? $"{course.Creator.FirstName} {course.Creator.LastName}" : string.Empty,
+            CreatorName = course.Creator != null 
+                ? $"{course.Creator.FirstName} {course.Creator.LastName}".Trim() 
+                : string.Empty,
             Level = course.Level,
             Language = course.Language,
             Price = course.Price,
             Status = course.Status,
+            
+            // الصورة
+            ImageUrl = course.CourseImageFile != null
+                ? _objectStorage.GetPublicUrl(
+                    course.CourseImageFile.Bucket,
+                    course.CourseImageFile.FilePath)
+                : null,
+            CourseImageFileId = course.CourseImageFileId,
+            
             TotalDurationMinutes = course.TotalDurationMinutes,
             EnrollmentCount = course.EnrollmentCount,
             AverageRating = course.AverageRating,
             CreatedAt = course.CreatedAt,
-            Requirements = course.CourseRequirements.Select(r => new CourseRequirementDto
-            {
-                Id = r.Id,
-                RequirementText = r.Description
-            }).ToList(),
-            LearningOutcomes = course.CourseLearningOutcomes.Select(o => new CourseLearningOutcomeDto
-            {
-                Id = o.Id,
-                OutcomeText = o.Description
-            }).ToList()
+            UpdatedAt = course.UpdatedAt,
+            PublishedAt = course.PublishedAt,
+            
+            Requirements = course.CourseRequirements
+                .Select(r => new CourseRequirementDto
+                {
+                    Id = r.Id,
+                    RequirementText = r.Description
+                }).ToList(),
+                
+            LearningOutcomes = course.CourseLearningOutcomes
+                .Select(o => new CourseLearningOutcomeDto
+                {
+                    Id = o.Id,
+                    OutcomeText = o.Description
+                }).ToList()
         };
     }
 
@@ -251,15 +495,27 @@ public class CourseService : ICourseService
             Id = course.Id,
             Title = course.Title,
             Slug = course.Slug,
-            Description = course.Description,
+            Description = course.Description?.Length > 200 
+                ? course.Description.Substring(0, 200) + "..." 
+                : course.Description,
             Price = course.Price,
             Level = course.Level,
             Language = course.Language,
             Status = course.Status,
+            
+            ThumbnailUrl = course.CourseImageFile != null
+                ? _objectStorage.GetPublicUrl(
+                    course.CourseImageFile.Bucket,
+                    course.CourseImageFile.FilePath)
+                : null,
+                
             TotalDurationMinutes = course.TotalDurationMinutes,
             EnrollmentCount = course.EnrollmentCount,
             AverageRating = course.AverageRating,
+            CategoryName = course.Category?.Name,
             CreatedAt = course.CreatedAt
         };
     }
+
+    #endregion
 }

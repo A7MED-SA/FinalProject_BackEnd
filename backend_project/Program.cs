@@ -113,6 +113,13 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.ICategoryService,
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseService, backend_project.Services.Implementations.CourseService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.ISectionService, backend_project.Services.Implementations.SectionService>();
 
+// Course Edit Approval & Public Course Services
+builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseEditApprovalService, backend_project.Services.CourseEditApprovalService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IPublicCourseService, backend_project.Services.PublicCourseService>();
+
+// Background Services
+builder.Services.AddHostedService<backend_project.Services.Background.EditRequestCleanupService>();
+
 // Register ALL FluentValidation Validators
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);

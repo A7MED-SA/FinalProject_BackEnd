@@ -20,13 +20,12 @@ public class Category : BaseEntity
     [Column("description")]
     public string? Description { get; set; }
 
-    [Column("image_url")]
-    [MaxLength(500)]
-    public string? ImageUrl { get; set; }
-
     [Column("position")]
     public int Position { get; set; } = 0;
-
+    [Column("category_image_file_id")]
+    public Guid? CategoryImageFileId { get; set; }
+    [ForeignKey("CategoryImageFileId")]
+    public virtual UploadedFile? CategoryImageFile { get; set; }    
     [Column("parent_category_id")]
     public Guid? ParentCategoryId { get; set; }
 
@@ -35,6 +34,10 @@ public class Category : BaseEntity
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("deleted_at")]
+    public DateTime? DeletedAt { get; set; }
+
 
     // Navigation Properties
     [ForeignKey("ParentCategoryId")]

@@ -43,6 +43,9 @@ public class Course : BaseEntity
     [Required]
     [Column("category_id")]
     public Guid CategoryId { get; set; }
+    
+    [Column("rejection_reason")]
+    public string? RejectionReason { get; set; } 
 
     [Column("level")]
     [MaxLength(20)]
@@ -67,6 +70,12 @@ public class Course : BaseEntity
 
     [Column("archived_at")]
     public DateTime? ArchivedAt { get; set; }
+
+    [Column("version")]
+    public int Version { get; set; } = 1;
+
+    [Column("last_content_update_at")]
+    public DateTime? LastContentUpdateAt { get; set; }
 
     [Column("total_duration_minutes")]
     public int TotalDurationMinutes { get; set; } = 0;
