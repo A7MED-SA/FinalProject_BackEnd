@@ -59,7 +59,7 @@ public class MinioObjectStorage : IObjectStorage
     // NOTE: This method is not used in the current flow. All file access uses presigned URLs for security and auditability.
     public string GetPublicUrl(string bucket, string objectPath)
     {
-        return $"{_settings.Endpoint}/{bucket}/{objectPath}";
+        return $"http://{_settings.Endpoint}/{bucket}/{objectPath}";
     }
 
     public async Task<string> GenerateViewUrlAsync(

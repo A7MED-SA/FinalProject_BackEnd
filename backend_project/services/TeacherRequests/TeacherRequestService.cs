@@ -192,6 +192,7 @@ public class TeacherRequestService : ITeacherRequestService
     {
         var requests = await _context.TeacherRequests
             .Where(r => r.UserId == Guid.Parse(userId))
+            .Include(r => r.Documents)
             .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
 
@@ -249,6 +250,7 @@ public class TeacherRequestService : ITeacherRequestService
         var requests = await _context.TeacherRequests
             .Where(r => r.Status == TeacherRequestStatus.Pending)
             .Include(r => r.User)
+            .Include(r => r.Documents)
             .OrderBy(r => r.SubmittedAt)
             .ToListAsync();
 

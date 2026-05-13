@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using backend_project.Data;
 using backend_project.Models;
 using backend_project.DTOs.Course;
+using Microsoft.Extensions.Options;
+using backend_project.Configuration;
 using backend_project.Services.Interfaces;
 
 namespace backend_project.Services;
@@ -13,14 +15,20 @@ namespace backend_project.Services;
 public class PublicCourseService : IPublicCourseService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IObjectStorage _objectStorage;
+    private readonly MinioSettings _minioSettings;  
     private readonly ILogger<PublicCourseService> _logger;
 
     public PublicCourseService(
         ApplicationDbContext context,
-        ILogger<PublicCourseService> logger)
+        ILogger<PublicCourseService> logger,
+        IObjectStorage objectStorage,
+        IOptions<MinioSettings> minioSettings)
     {
         _context = context;
         _logger = logger;
+        _objectStorage = objectStorage;
+        _minioSettings = minioSettings.Value;
     }
 
     public async Task<PagedResult<PublicCourseDto>> GetPublishedCoursesAsync(PublicCourseFilterDto filter)
@@ -102,6 +110,11 @@ public class PublicCourseService : IPublicCourseService
                 EnrollmentCount = c.EnrollmentCount,
                 TotalDurationMinutes = c.TotalDurationMinutes,
                 SectionCount = c.Sections.Count,
+                CourseImageUrl=c.CourseImageFile != null
+                ? _objectStorage.GetPublicUrl(
+                    c.CourseImageFile.Bucket,
+                    c.CourseImageFile.FilePath)
+                : null,
                 LessonCount = c.Sections.SelectMany(s => s.SectionItems).Count(),
                 PublishedAt = c.PublishedAt
             })
