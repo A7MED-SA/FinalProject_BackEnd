@@ -123,9 +123,21 @@ public class CategoryService : ICategoryService
 
     public async Task DeleteCategoryAsync(Guid id)
     {
-        var category = await _context.Categories.FindAsync(id);
+        var category = await _context.Categories
+            .Include(c => c.Courses)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
         if (category == null)
             throw new KeyNotFoundException("Category not found");
+
+        bool hasSubcategories = await _context.Categories
+            .AnyAsync(c => c.ParentCategoryId == id && c.DeletedAt == null);
+
+        if (hasSubcategories)
+            throw new InvalidOperationException("Cannot delete category with subcategories. Remove or reassign subcategories first.");
+
+        if (category.Courses != null && category.Courses.Any(c => c.DeletedAt == null))
+            throw new InvalidOperationException("Cannot delete category with active courses. Reassign courses to another category first.");
 
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();

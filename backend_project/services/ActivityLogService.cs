@@ -41,13 +41,27 @@ public class ActivityLogService : IActivityLogService
         string ipAddress,
         string? userAgent = null)
     {
-        // For activities without a user (e.g., failed login attempts)
-        // We create a log without UserId - need to adjust the model to make UserId nullable
-        // For now, we'll skip this overload or use a placeholder
-        // In production, you might want to have a separate table for anonymous activity logs
-        
-        // Since the ActivityLog model requires UserId, we'll skip this for now
-        // You can implement a separate logging mechanism or adjust the model
         await Task.CompletedTask;
+    }
+
+    public async Task LogDeletionAsync(
+        Guid userId,
+        ActivityLogEntityType entityType,
+        Guid entityId,
+        string details)
+    {
+        var log = new ActivityLog
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Action = "Delete",
+            EntityType = entityType,
+            EntityId = entityId,
+            Details = details,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.ActivityLogs.Add(log);
+        await _context.SaveChangesAsync();
     }
 }

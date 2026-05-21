@@ -36,6 +36,7 @@ public class QuizAttemptResponseDto
 
 public class QuizResultDto : QuizAttemptResponseDto
 {
+    public bool IsAutoSubmitted { get; set; } = false;
     public IEnumerable<AnswerResultDto> Answers { get; set; } = new List<AnswerResultDto>();
 }
 

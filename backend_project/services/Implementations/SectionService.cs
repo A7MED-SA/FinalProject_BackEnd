@@ -71,7 +71,7 @@ public class SectionService : ISectionService
     public async Task DeleteSectionAsync(Guid sectionId, Guid instructorId)
     {
         var section = await GetSectionWithValidationAsync(sectionId, instructorId);
-        
+
         _context.Sections.Remove(section);
         await _context.SaveChangesAsync();
     }

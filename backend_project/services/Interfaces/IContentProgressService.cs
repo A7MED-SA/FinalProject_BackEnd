@@ -8,8 +8,8 @@ namespace backend_project.Services.Interfaces;
 
 public interface IContentProgressService
 {
-    Task<ContentProgressDto> GetProgressAsync(Guid enrollmentId, ContentType contentType, Guid contentId);
-    Task<IEnumerable<ContentProgressDto>> GetAllProgressForEnrollmentAsync(Guid enrollmentId);
-    Task<ContentProgressDto> UpdateProgressAsync(Guid enrollmentId, ContentType contentType, Guid contentId, UpdateProgressDto updateDto);
-    Task<decimal> CalculateOverallCourseProgressAsync(Guid enrollmentId);
+    Task<ContentProgressDto> UpdateProgressAsync(Guid enrollmentId, UpdateProgressDto updateDto);
+    Task<ContentProgressDto> MarkCompletedAsync(Guid enrollmentId, Guid contentId, ContentType contentType);
+    Task<IEnumerable<ContentProgressDto>> GetProgressForEnrollmentAsync(Guid enrollmentId);
+    Task RecalculateEnrollmentProgressAsync(Guid enrollmentId);
 }

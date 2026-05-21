@@ -26,4 +26,7 @@ public interface ICourseService
     Task RejectCourseAsync(Guid courseId, Guid adminId, string reason);
     Task<CourseDetailsDto> SetCourseImageAsync(Guid courseId, Guid fileId, Guid userId);
     Task<CourseDetailsDto> RemoveCourseImageAsync(Guid courseId, Guid userId);
+
+    // US6 - Deletion Lifecycle
+    Task DeleteCourseAsync(Guid courseId, Guid instructorId);
 }

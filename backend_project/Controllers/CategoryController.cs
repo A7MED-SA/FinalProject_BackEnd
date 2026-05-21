@@ -55,8 +55,15 @@ public class CategoryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await _categoryService.DeleteCategoryAsync(id);
-        return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Category deleted successfully"));
+        try
+        {
+            await _categoryService.DeleteCategoryAsync(id);
+            return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Category deleted successfully"));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
     }
     [HttpPut("{categoryId}/image")]
 [Authorize(Roles = "Admin")] // ⚠️ تأكد من الصلاحيات

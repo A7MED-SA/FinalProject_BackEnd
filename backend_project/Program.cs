@@ -113,6 +113,14 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.ICategoryService,
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseService, backend_project.Services.Implementations.CourseService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.ISectionService, backend_project.Services.Implementations.SectionService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IEnrollmentService, backend_project.Services.Implementations.EnrollmentService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IVideoContentService, backend_project.Services.Implementations.VideoContentService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IDocumentService, backend_project.Services.Implementations.DocumentService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IQuizManagementService, backend_project.Services.Implementations.QuizManagementService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IContentProgressService, backend_project.Services.Implementations.ContentProgressService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IQuizAttemptService, backend_project.Services.Implementations.QuizAttemptService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ILiveSessionService, backend_project.Services.Implementations.LiveSessionService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ILiveAttendanceService, backend_project.Services.Implementations.LiveAttendanceService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IVideoCommentService, backend_project.Services.Implementations.VideoCommentService>();
 
 // Course Edit Approval & Public Course Services
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseEditApprovalService, backend_project.Services.CourseEditApprovalService>();

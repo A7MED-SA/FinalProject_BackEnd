@@ -333,6 +333,76 @@ public async Task<CourseDetailsDto> UpdateCourseAsync(Guid courseId, Guid instru
         await _context.SaveChangesAsync();
     }
 
+    public async Task DeleteCourseAsync(Guid courseId, Guid instructorId)
+    {
+        var course = await _context.Courses
+            .Include(c => c.Sections)
+                .ThenInclude(s => s.SectionItems)
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
+
+        if (course.CreatedBy != instructorId)
+            throw new UnauthorizedAccessException("You do not have permission to delete this course.");
+
+        bool hasEnrollments = await _context.Enrollments
+            .AnyAsync(e => e.CourseId == courseId);
+
+        if (course.Status == CourseStatus.Draft)
+        {
+            foreach (var section in course.Sections)
+            {
+                foreach (var item in section.SectionItems)
+                {
+                    await DeleteContentByItemAsync(item);
+                }
+                _context.SectionItems.RemoveRange(section.SectionItems);
+            }
+            _context.Sections.RemoveRange(course.Sections);
+            _context.Courses.Remove(course);
+        }
+        else
+        {
+            course.DeletedAt = DateTime.UtcNow;
+            course.UpdatedAt = DateTime.UtcNow;
+            course.Status = hasEnrollments ? CourseStatus.Archived : CourseStatus.Archived;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task DeleteContentByItemAsync(SectionItem item)
+    {
+        switch (item.ItemType)
+        {
+            case SectionItemType.Video:
+                var video = await _context.Videos.FindAsync(item.ItemId);
+                if (video != null) _context.Videos.Remove(video);
+                break;
+            case SectionItemType.Document:
+                var document = await _context.Documents.FindAsync(item.ItemId);
+                if (document != null) _context.Documents.Remove(document);
+                break;
+            case SectionItemType.Quiz:
+                var quiz = await _context.Quizzes
+                    .Include(q => q.Questions).ThenInclude(qn => qn.Options)
+                    .FirstOrDefaultAsync(q => q.Id == item.ItemId);
+                if (quiz != null)
+                {
+                    foreach (var q in quiz.Questions)
+                    {
+                        _context.Options.RemoveRange(q.Options);
+                    }
+                    _context.Questions.RemoveRange(quiz.Questions);
+                    _context.Quizzes.Remove(quiz);
+                }
+                break;
+            case SectionItemType.LiveSession:
+                var liveSession = await _context.LiveSessions.FindAsync(item.ItemId);
+                if (liveSession != null) _context.LiveSessions.Remove(liveSession);
+                break;
+        }
+    }
+
     #endregion
 
     #region 🖼️ Image Management

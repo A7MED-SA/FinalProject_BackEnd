@@ -13,6 +13,4 @@ public interface IVideoCommentService
     Task<bool> DeleteCommentAsync(Guid commentId, Guid userId); // Soft delete
     
     Task<CommentLikeResponseDto> ToggleLikeAsync(Guid commentId, Guid userId);
-    Task<bool> PinCommentAsync(Guid commentId, Guid userId); // For instructors
-    Task<bool> UnpinCommentAsync(Guid commentId, Guid userId);
 }

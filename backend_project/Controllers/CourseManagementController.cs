@@ -87,6 +87,25 @@ public class CourseManagementController : ControllerBase
         await _courseService.SubmitForReviewAsync(id, userId);
         return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Course submitted for review successfully"));
     }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCourse(Guid id)
+    {
+        try
+        {
+            var userId = GetUserId();
+            await _courseService.DeleteCourseAsync(id, userId);
+            return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Course deleted successfully"));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(403, backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+    }
+
     [HttpPut("{courseId}/image")]
 [Authorize]
 public async Task<IActionResult> SetCourseImage(

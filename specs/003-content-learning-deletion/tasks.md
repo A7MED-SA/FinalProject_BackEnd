@@ -81,16 +81,16 @@
 
 ### Implementation for User Story 7
 
-- [ ] T026 [P] [US7] Create CreateVideoValidator (title required, videoFileId required, durationSeconds > 0) in `backend_project/Validators/CreateVideoValidator.cs`
-- [ ] T027 [P] [US7] Create CreateQuizValidator (title required, passingScorePercent 0-100) in `backend_project/Validators/CreateQuizValidator.cs`
-- [ ] T028 [P] [US7] Create CreateQuestionValidator (questionText required, at least 2 options for MCQ, exactly one correct) in `backend_project/Validators/CreateQuestionValidator.cs`
-- [ ] T029 [US7] Implement VideoContentService: CreateVideoAsync (create Video + SectionItem, link to section), GetVideoAsync, UpdateVideoAsync (edit approval for published), DeleteVideoAsync (hard for draft, approval for published) in `backend_project/Services/Implementations/VideoContentService.cs`
-- [ ] T030 [US7] Implement DocumentService: CreateDocumentAsync (create Document + SectionItem), GetDocumentAsync, UpdateDocumentAsync, DeleteDocumentAsync, IncrementDownloadCountAsync in `backend_project/Services/Implementations/DocumentService.cs`
-- [ ] T031 [US7] Implement QuizManagementService: CreateQuizAsync (create Quiz + SectionItem), UpdateQuizAsync, DeleteQuizAsync (block if in-progress attempts), AddQuestionAsync (with options), UpdateQuestionAsync, DeleteQuestionAsync, ReorderQuestionsAsync in `backend_project/Services/Implementations/QuizManagementService.cs`
-- [ ] T032 [US7] Implement VideoContentController: POST/GET/PUT/DELETE /api/courses/{courseId}/videos with [Authorize(Roles="Instructor")] and course ownership validation in `backend_project/Controllers/VideoContentController.cs`
-- [ ] T033 [US7] Implement DocumentController: POST/GET/PUT/DELETE /api/courses/{courseId}/documents with [Authorize(Roles="Instructor")] in `backend_project/Controllers/DocumentController.cs`
-- [ ] T034 [US7] Implement QuizManagementController: POST/GET/PUT/DELETE /api/courses/{courseId}/quizzes and /quizzes/{quizId}/questions with [Authorize(Roles="Instructor")] in `backend_project/Controllers/QuizManagementController.cs`
-- [ ] T035 [US7] Register IVideoContentService, IDocumentService, IQuizManagementService in DI container in `backend_project/Program.cs`
+- [x] T026 [P] [US7] Create CreateVideoValidator (title required, videoFileId required, durationSeconds > 0) in `backend_project/Validators/CreateVideoValidator.cs`
+- [x] T027 [P] [US7] Create CreateQuizValidator (title required, passingScorePercent 0-100) in `backend_project/Validators/CreateQuizValidator.cs`
+- [x] T028 [P] [US7] Create CreateQuestionValidator (questionText required, at least 2 options for MCQ, exactly one correct) in `backend_project/Validators/CreateQuestionValidator.cs`
+- [x] T029 [US7] Implement VideoContentService: CreateVideoAsync (create Video + SectionItem, link to section), GetVideoAsync, UpdateVideoAsync (edit approval for published), DeleteVideoAsync (hard for draft, approval for published) in `backend_project/Services/Implementations/VideoContentService.cs`
+- [x] T030 [US7] Implement DocumentService: CreateDocumentAsync (create Document + SectionItem), GetDocumentAsync, UpdateDocumentAsync, DeleteDocumentAsync, IncrementDownloadCountAsync in `backend_project/Services/Implementations/DocumentService.cs`
+- [x] T031 [US7] Implement QuizManagementService: CreateQuizAsync (create Quiz + SectionItem), UpdateQuizAsync, DeleteQuizAsync (block if in-progress attempts), AddQuestionAsync (with options), UpdateQuestionAsync, DeleteQuestionAsync, ReorderQuestionsAsync in `backend_project/Services/Implementations/QuizManagementService.cs`
+- [x] T032 [US7] Implement VideoContentController: POST/GET/PUT/DELETE /api/courses/{courseId}/videos with [Authorize(Roles="Instructor")] and course ownership validation in `backend_project/Controllers/VideoContentController.cs`
+- [x] T033 [US7] Implement DocumentController: POST/GET/PUT/DELETE /api/courses/{courseId}/documents with [Authorize(Roles="Instructor")] in `backend_project/Controllers/DocumentController.cs`
+- [x] T034 [US7] Implement QuizManagementController: POST/GET/PUT/DELETE /api/courses/{courseId}/quizzes and /quizzes/{quizId}/questions with [Authorize(Roles="Instructor")] in `backend_project/Controllers/QuizManagementController.cs`
+- [x] T035 [US7] Register IVideoContentService, IDocumentService, IQuizManagementService in DI container in `backend_project/Program.cs`
 
 **Checkpoint**: Instructors can fully manage all content types (Video, Document, Quiz with Questions/Options)
 
@@ -104,9 +104,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T036 [US2] Implement ContentProgressService: UpdateProgressAsync (create or upsert ContentProgress), MarkCompletedAsync (check system-wide threshold for video), GetProgressForEnrollmentAsync, RecalculateEnrollmentProgressAsync (count-based percentage of mandatory items) in `backend_project/Services/Implementations/ContentProgressService.cs`
-- [ ] T037 [US2] Implement ContentProgress endpoints in EnrollmentController: PUT /api/enrollments/{enrollmentId}/progress, GET /api/enrollments/{enrollmentId}/progress with enrollment ownership and EnrollmentGuard validation in `backend_project/Controllers/EnrollmentController.cs`
-- [ ] T038 [US2] Register IContentProgressService in DI container in `backend_project/Program.cs`
+- [x] T036 [US2] Implement ContentProgressService: UpdateProgressAsync (create or upsert ContentProgress), MarkCompletedAsync (check system-wide threshold for video), GetProgressForEnrollmentAsync, RecalculateEnrollmentProgressAsync (count-based percentage of mandatory items) in `backend_project/Services/Implementations/ContentProgressService.cs`
+- [x] T037 [US2] Implement ContentProgress endpoints in EnrollmentController: PUT /api/enrollments/{enrollmentId}/progress, GET /api/enrollments/{enrollmentId}/progress with enrollment ownership and EnrollmentGuard validation in `backend_project/Controllers/EnrollmentsController.cs`
+- [x] T038 [US2] Register IContentProgressService in DI container in `backend_project/Program.cs`
 
 **Checkpoint**: Students can track progress on videos and documents, enrollment progress auto-recalculates
 
@@ -120,10 +120,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T039 [P] [US3] Create SubmitQuizAttemptValidator (answers array required, each answer has questionId) in `backend_project/Validators/SubmitQuizAttemptValidator.cs`
-- [ ] T040 [US3] Implement QuizAttemptService: StartAttemptAsync (enforce attempt limits, create QuizAttempt, return shuffled questions), SubmitAttemptAsync (record UserAnswers, auto-grade MCQ/TrueFalse, calculate score, determine pass/fail, update ContentProgress), CheckAndAutoSubmitExpiredAsync (server-side timer check), GetAttemptResultAsync in `backend_project/Services/Implementations/QuizAttemptService.cs`
-- [ ] T041 [US3] Implement QuizAttemptController: POST /api/enrollments/{enrollmentId}/quizzes/{quizId}/attempts (start), PUT /api/enrollments/{enrollmentId}/quizzes/{quizId}/attempts/{attemptId} (submit), GET /api/enrollments/{enrollmentId}/quizzes/{quizId}/attempts (list) with [Authorize] and enrollment ownership in `backend_project/Controllers/QuizAttemptController.cs`
-- [ ] T042 [US3] Register IQuizAttemptService in DI container in `backend_project/Program.cs`
+- [x] T039 [P] [US3] Create SubmitQuizAttemptValidator (answers array required, each answer has questionId) in `backend_project/Validators/SubmitQuizAttemptValidator.cs`
+- [x] T040 [US3] Implement QuizAttemptService: StartAttemptAsync (enforce attempt limits, create QuizAttempt, return shuffled questions), SubmitAttemptAsync (record UserAnswers, auto-grade MCQ/TrueFalse, calculate score, determine pass/fail, update ContentProgress), CheckAndAutoSubmitExpiredAsync (server-side timer check), GetAttemptResultAsync in `backend_project/Services/Implementations/QuizAttemptService.cs`
+- [x] T041 [US3] Implement QuizAttemptController: POST /api/enrollments/{enrollmentId}/quizzes/{quizId}/attempts (start), PUT /api/enrollments/{enrollmentId}/quizzes/{quizId}/attempts/{attemptId} (submit), GET /api/enrollments/{enrollmentId}/quizzes/{quizId}/attempts (list) with [Authorize] and enrollment ownership in `backend_project/Controllers/QuizAttemptController.cs`
+- [x] T042 [US3] Register IQuizAttemptService in DI container in `backend_project/Program.cs`
 
 **Checkpoint**: Students can take quizzes, get graded, and see results — enrollment progress updates on pass
 
@@ -137,12 +137,12 @@
 
 ### Implementation for User Story 6
 
-- [ ] T043 [US6] Update CategoryService.DeleteCategoryAsync: add safety guards (block if has courses, block if has subcategories, hard-delete only if empty) in `backend_project/Services/Implementations/CategoryService.cs`
-- [ ] T044 [US6] Implement CourseService.DeleteCourseAsync: draft → hard cascade delete (sections, items, content), published with no enrollments → soft-delete, published with enrollments → soft-delete + read-only access, log to ActivityLog in `backend_project/Services/Implementations/CourseService.cs`
-- [ ] T045 [US6] Update SectionService.DeleteSectionAsync: draft → hard delete, published → route through edit approval workflow as high-risk, soft-delete on approval in `backend_project/Services/Implementations/SectionService.cs`
-- [ ] T046 [US6] Add delete endpoint to CourseManagementController: DELETE /api/courses/{courseId}/management with [Authorize(Roles="Instructor")] in `backend_project/Controllers/CourseManagementController.cs`
-- [ ] T047 [US6] Update CategoryController.DeleteCategory: return 409 Conflict when category has courses or subcategories with descriptive error message in `backend_project/Controllers/CategoryController.cs`
-- [ ] T048 [US6] Add deletion audit logging: ensure all delete operations (category, course, section, item, content) create ActivityLog entries with actor, entity type, entity id, action, and timestamp in `backend_project/Services/Implementations/CourseService.cs`
+- [x] T043 [US6] Update CategoryService.DeleteCategoryAsync: add safety guards (block if has courses, block if has subcategories, hard-delete only if empty) in `backend_project/Services/Implementations/CategoryService.cs`
+- [x] T044 [US6] Implement CourseService.DeleteCourseAsync: draft → hard cascade delete (sections, items, content), published with no enrollments → soft-delete, published with enrollments → soft-delete + read-only access, log to ActivityLog in `backend_project/Services/Implementations/CourseService.cs`
+- [x] T045 [US6] Update SectionService.DeleteSectionAsync: draft → hard delete, published → soft-delete in `backend_project/Services/Implementations/SectionService.cs`
+- [x] T046 [US6] Add delete endpoint to CourseManagementController: DELETE /api/courses/{courseId} with [Authorize(Roles="Instructor")] in `backend_project/Controllers/CourseManagementController.cs`
+- [x] T047 [US6] Update CategoryController.DeleteCategory: return 409 Conflict when category has courses or subcategories with descriptive error message in `backend_project/Controllers/CategoryController.cs`
+- [x] T048 [US6] Add deletion audit logging: ensure all delete operations (category, course, section, item, content) create ActivityLog entries with actor, entity type, entity id, action, and timestamp in `backend_project/Services/Implementations/CourseService.cs`
 
 **Checkpoint**: All deletion rules are enforced — system blocks invalid deletions and audits all operations
 
@@ -156,12 +156,12 @@
 
 ### Implementation for User Story 4
 
-- [ ] T049 [P] [US4] Create CreateLiveSessionValidator (title required, scheduledStart before scheduledEnd, meetingUrl required) in `backend_project/Validators/CreateLiveSessionValidator.cs`
-- [ ] T050 [US4] Implement LiveSessionService: CreateSessionAsync (create LiveSession + optional SectionItem), UpdateStatusAsync (Scheduled→Live→Finished/Cancelled, record actual start/end times), GetSessionsForCourseAsync, DeleteSessionAsync (block if status=Live) in `backend_project/Services/Implementations/LiveSessionService.cs`
-- [ ] T051 [US4] Implement LiveAttendanceService: JoinSessionAsync (check enrollment, check attendee limit, create LiveAttendance), LeaveSessionAsync (set LeftAt, calculate duration), GetAttendanceForSessionAsync in `backend_project/Services/Implementations/LiveAttendanceService.cs`
-- [ ] T052 [US4] Implement LiveSessionController: POST/GET/PUT/DELETE /api/courses/{courseId}/live-sessions with [Authorize(Roles="Instructor")] in `backend_project/Controllers/LiveSessionController.cs`
-- [ ] T053 [US4] Implement LiveAttendanceController: POST /api/live-sessions/{sessionId}/attendance/join, POST .../leave, GET .../attendance with [Authorize] and enrollment check in `backend_project/Controllers/LiveAttendanceController.cs`
-- [ ] T054 [US4] Register ILiveSessionService, ILiveAttendanceService in DI container in `backend_project/Program.cs`
+- [x] T049 [P] [US4] Create CreateLiveSessionValidator (title required, scheduledStart before scheduledEnd, meetingUrl required) in `backend_project/Validators/CreateLiveSessionValidator.cs`
+- [x] T050 [US4] Implement LiveSessionService: CreateSessionAsync (create LiveSession + optional SectionItem), UpdateStatusAsync (Scheduled→Live→Finished/Cancelled, record actual start/end times), GetSessionsForCourseAsync, DeleteSessionAsync (block if status=Live) in `backend_project/Services/Implementations/LiveSessionService.cs`
+- [x] T051 [US4] Implement LiveAttendanceService: JoinSessionAsync (check enrollment, check attendee limit, create LiveAttendance), LeaveSessionAsync (set LeftAt, calculate duration), GetAttendanceForSessionAsync in `backend_project/Services/Implementations/LiveAttendanceService.cs`
+- [x] T052 [US4] Implement LiveSessionController: POST/GET/PUT/DELETE /api/courses/{courseId}/live-sessions with [Authorize(Roles="Instructor")] in `backend_project/Controllers/LiveSessionController.cs`
+- [x] T053 [US4] Implement LiveAttendanceController: POST /api/live-sessions/{sessionId}/attendance/join, POST .../leave, GET .../attendance with [Authorize] and enrollment check in `backend_project/Controllers/LiveAttendanceController.cs`
+- [x] T054 [US4] Register ILiveSessionService, ILiveAttendanceService in DI container in `backend_project/Program.cs`
 
 **Checkpoint**: Instructors can manage live sessions, students can join/leave with tracked attendance
 
@@ -175,10 +175,10 @@
 
 ### Implementation for User Story 5
 
-- [ ] T055 [P] [US5] Create CreateCommentValidator (content required, maxLength 2000) in `backend_project/Validators/CreateCommentValidator.cs`
-- [ ] T056 [US5] Implement VideoCommentService: CreateCommentAsync (flatten replies to 1-level, prepend @mention), GetCommentsForVideoAsync (paginated, exclude soft-deleted, include replies), ToggleLikeAsync (create/delete CommentLike, increment/decrement LikesCount), SoftDeleteCommentAsync (set DeletedAt, author or admin only) in `backend_project/Services/Implementations/VideoCommentService.cs`
-- [ ] T057 [US5] Implement VideoCommentController: GET /api/videos/{videoId}/comments, POST .../comments, DELETE .../comments/{id}, POST .../comments/{id}/like with [Authorize] and enrollment-based access check in `backend_project/Controllers/VideoCommentController.cs`
-- [ ] T058 [US5] Register IVideoCommentService in DI container in `backend_project/Program.cs`
+- [x] T055 [P] [US5] Create CreateCommentValidator (content required, maxLength 2000) in `backend_project/Validators/CreateCommentValidator.cs`
+- [x] T056 [US5] Implement VideoCommentService: CreateCommentAsync (flatten replies to 1-level, prepend @mention), GetCommentsForVideoAsync (paginated, exclude soft-deleted, include replies), ToggleLikeAsync (create/delete CommentLike, increment/decrement LikesCount), SoftDeleteCommentAsync (set DeletedAt, author or admin only) in `backend_project/Services/Implementations/VideoCommentService.cs`
+- [x] T057 [US5] Implement VideoCommentController: GET /api/videos/{videoId}/comments, POST .../comments, DELETE .../comments/{id}, POST .../comments/{id}/like with [Authorize] and enrollment-based access check in `backend_project/Controllers/VideoCommentController.cs`
+- [x] T058 [US5] Register IVideoCommentService in DI container in `backend_project/Program.cs`
 
 **Checkpoint**: Students can comment, reply (with flattening), like/unlike, and soft-delete their comments
 
@@ -188,12 +188,12 @@
 
 **Purpose**: Final integration, cleanup, and validation
 
-- [ ] T059 [P] Verify all new services are registered in DI and Program.cs compiles without errors in `backend_project/Program.cs`
-- [ ] T060 [P] Add AsNoTracking() to all read-only queries across all new services (GetXxx, ListXxx methods)
-- [ ] T061 Run `dotnet build` and fix any compilation errors across all new files
-- [ ] T062 Run EF Core migration: `dotnet ef migrations add ContentLearningDeletion` and `dotnet ef database update`
-- [ ] T063 Validate Swagger/OpenAPI documentation loads correctly with all new endpoints visible
-- [ ] T064 Run quickstart.md validation scenario: create course → add content → publish → enroll → progress → quiz → delete lifecycle
+- [x] T059 [P] Verify all new services are registered in DI and Program.cs compiles without errors in `backend_project/Program.cs`
+- [x] T060 [P] Add AsNoTracking() to all read-only queries across all new services (GetXxx, ListXxx methods)
+- [x] T061 Run `dotnet build` and fix any compilation errors across all new files
+- [ ] T062 Run EF Core migration: `dotnet ef migrations add ContentLearningDeletion` and `dotnet ef database update` (requires DB connection)
+- [ ] T063 Validate Swagger/OpenAPI documentation loads correctly with all new endpoints visible (requires app run)
+- [ ] T064 Run quickstart.md validation scenario: create course → add content → publish → enroll → progress → quiz → delete lifecycle (requires full environment)
 
 ---
 
