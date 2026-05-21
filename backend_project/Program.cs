@@ -112,6 +112,7 @@ builder.Services.AddScoped<ITeacherRequestService, TeacherRequestService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICategoryService, backend_project.Services.Implementations.CategoryService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseService, backend_project.Services.Implementations.CourseService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.ISectionService, backend_project.Services.Implementations.SectionService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IEnrollmentService, backend_project.Services.Implementations.EnrollmentService>();
 
 // Course Edit Approval & Public Course Services
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseEditApprovalService, backend_project.Services.CourseEditApprovalService>();

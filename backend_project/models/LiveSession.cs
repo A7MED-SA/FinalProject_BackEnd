@@ -26,6 +26,23 @@ public class LiveSession : BaseEntity
     [Column("status")]
     public LiveSessionStatus Status { get; set; }
 
+    [Column("meeting_url")]
+    [MaxLength(2000)]
+    public string MeetingUrl { get; set; } = string.Empty;
+
+    [Column("password")]
+    [MaxLength(255)]
+    public string? Password { get; set; }
+
+    [Column("max_attendees")]
+    public int? MaxAttendees { get; set; }
+
+    [Column("actual_start_at")]
+    public DateTime? ActualStartAt { get; set; }
+
+    [Column("actual_end_at")]
+    public DateTime? ActualEndAt { get; set; }
+
     [Column("recording_file_id")]
     public Guid? RecordingFileId { get; set; }
 

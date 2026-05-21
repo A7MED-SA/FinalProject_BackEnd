@@ -707,5 +707,17 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
         modelBuilder.Entity<VerificationToken>()
             .HasIndex(vt => new { vt.UserId, vt.TokenType })
             .HasDatabaseName("IX_VerificationTokens_UserId_TokenType");
+
+        modelBuilder.Entity<Enrollment>()
+            .HasIndex(e => new { e.UserId, e.CourseId })
+            .IsUnique();
+
+        modelBuilder.Entity<CommentLike>()
+            .HasIndex(cl => new { cl.CommentId, cl.UserId })
+            .IsUnique();
+
+        modelBuilder.Entity<ContentProgress>()
+            .HasIndex(cp => new { cp.EnrollmentId, cp.ContentType, cp.ContentId })
+            .IsUnique();
     }
 }
