@@ -68,6 +68,9 @@ public class CourseDetailsDto : CourseSummaryDto
     public Guid? CourseImageFileId { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? PublishedAt { get; set; }
+    public DateTime? ScheduledDeletionAt { get; set; }
+    public string? DeletionReason { get; set; }
+    public bool IsReadOnlyForStudents { get; set; }
 }
 
 public class CreateCourseDto
@@ -118,4 +121,21 @@ public class AddRequirementDto
 public class AddLearningOutcomeDto
 {
     public string OutcomeText { get; set; } = string.Empty;
+}
+
+public class ScheduleDeletionDto
+{
+    public DateTime ScheduledDate { get; set; }
+    public string? Reason { get; set; }
+}
+
+public class ScheduledDeletionStatusDto
+{
+    public Guid CourseId { get; set; }
+    public DateTime? ScheduledDeletionAt { get; set; }
+    public string? DeletionReason { get; set; }
+    public bool IsReadOnlyForStudents { get; set; }
+    public bool IsPending => ScheduledDeletionAt.HasValue && !IsReadOnlyForStudents;
+    public bool IsExecuted => IsReadOnlyForStudents;
+    public int EnrolledStudentCount { get; set; }
 }

@@ -8,6 +8,7 @@ using backend_project.Data;
 using backend_project.Models;
 using backend_project.DTOs.Course;
 using backend_project.Services.Interfaces;
+using backend_project.Services.Notifications;
 using backend_project.Configuration;
 
 namespace backend_project.Services.Implementations;
@@ -18,17 +19,23 @@ public class CourseService : ICourseService
     private readonly IObjectStorage _objectStorage;
     private readonly MinioSettings _minioSettings;
     private readonly ILogger<CourseService> _logger;
+    private readonly INotificationService _notificationService;
+    private readonly IActivityLogService _activityLogService;
 
     public CourseService(
         ApplicationDbContext context,
         IObjectStorage objectStorage,
         IOptions<MinioSettings> minioSettings,
-        ILogger<CourseService> logger)
+        ILogger<CourseService> logger,
+        INotificationService notificationService,
+        IActivityLogService activityLogService)
     {
         _context = context;
         _objectStorage = objectStorage;
         _minioSettings = minioSettings.Value;
         _logger = logger;
+        _notificationService = notificationService;
+        _activityLogService = activityLogService;
     }
 
     #region 👨‍🏫 Instructor Operations
@@ -360,14 +367,150 @@ public async Task<CourseDetailsDto> UpdateCourseAsync(Guid courseId, Guid instru
             _context.Sections.RemoveRange(course.Sections);
             _context.Courses.Remove(course);
         }
+        else if (hasEnrollments)
+        {
+            throw new InvalidOperationException(
+                "Cannot delete a published course with enrolled students. " +
+                "Use ScheduleDeletionAsync to schedule deletion instead.");
+        }
         else
         {
             course.DeletedAt = DateTime.UtcNow;
             course.UpdatedAt = DateTime.UtcNow;
-            course.Status = hasEnrollments ? CourseStatus.Archived : CourseStatus.Archived;
+            course.Status = CourseStatus.Archived;
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task ScheduleDeletionAsync(Guid courseId, Guid instructorId, DateTime scheduledDate, string? reason)
+    {
+        var course = await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
+
+        if (course.CreatedBy != instructorId)
+            throw new UnauthorizedAccessException("You do not have permission to modify this course.");
+
+        if (course.Status != CourseStatus.Published)
+            throw new InvalidOperationException("Only published courses can be scheduled for deletion.");
+
+        bool hasEnrollments = await _context.Enrollments
+            .AnyAsync(e => e.CourseId == courseId);
+
+        if (!hasEnrollments)
+        {
+            course.DeletedAt = DateTime.UtcNow;
+            course.UpdatedAt = DateTime.UtcNow;
+            course.Status = CourseStatus.Archived;
+            await _context.SaveChangesAsync();
+            return;
+        }
+
+        if (scheduledDate <= DateTime.UtcNow)
+            throw new InvalidOperationException("Scheduled date must be in the future.");
+
+        if (scheduledDate > DateTime.UtcNow.AddMonths(6))
+            throw new InvalidOperationException("Scheduled date cannot be more than 6 months in the future.");
+
+        course.ScheduledDeletionAt = scheduledDate;
+        course.DeletionReason = reason;
+        course.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        var enrolledStudents = await _context.Enrollments
+            .Where(e => e.CourseId == courseId &&
+                       (e.Status == EnrollmentStatus.InProgress || e.Status == EnrollmentStatus.Completed))
+            .Select(e => e.UserId)
+            .ToListAsync();
+
+        foreach (var studentId in enrolledStudents)
+        {
+            await _notificationService.CreateAndSendNotificationAsync(
+                studentId,
+                "⚠️ Course Scheduled for Deletion",
+                $"The course \"{course.Title}\" has been scheduled for deletion on {scheduledDate:yyyy-MM-dd}. " +
+                $"Please complete your work before this date. After that, the course will become read-only." +
+                (string.IsNullOrEmpty(reason) ? "" : $"\nReason: {reason}"),
+                NotificationType.Course,
+                linkUrl: $"/courses/{courseId}");
+        }
+
+        await _activityLogService.LogActivityAsync(
+            userId: instructorId,
+            action: "Course.DeletionScheduled",
+            description: $"Scheduled deletion for course '{course.Title}' on {scheduledDate:yyyy-MM-dd}",
+            ipAddress: "system");
+
+        _logger.LogInformation(
+            "Deletion scheduled for course {CourseId} on {ScheduledDate} by instructor {InstructorId}",
+            courseId, scheduledDate, instructorId);
+    }
+
+    public async Task CancelScheduledDeletionAsync(Guid courseId, Guid instructorId)
+    {
+        var course = await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
+
+        if (course.CreatedBy != instructorId)
+            throw new UnauthorizedAccessException("You do not have permission to modify this course.");
+
+        if (course.ScheduledDeletionAt == null)
+            throw new InvalidOperationException("Course has no scheduled deletion.");
+
+        if (course.IsReadOnlyForStudents)
+            throw new InvalidOperationException("Cannot cancel deletion after it has been executed.");
+
+        course.ScheduledDeletionAt = null;
+        course.DeletionReason = null;
+        course.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        var enrolledStudents = await _context.Enrollments
+            .Where(e => e.CourseId == courseId &&
+                       (e.Status == EnrollmentStatus.InProgress || e.Status == EnrollmentStatus.Completed))
+            .Select(e => e.UserId)
+            .ToListAsync();
+
+        foreach (var studentId in enrolledStudents)
+        {
+            await _notificationService.CreateAndSendNotificationAsync(
+                studentId,
+                "✅ Deletion Cancelled",
+                $"The scheduled deletion for course \"{course.Title}\" has been cancelled.",
+                NotificationType.Course,
+                linkUrl: $"/courses/{courseId}");
+        }
+
+        await _activityLogService.LogActivityAsync(
+            userId: instructorId,
+            action: "Course.DeletionCancelled",
+            description: $"Cancelled scheduled deletion for course '{course.Title}'",
+            ipAddress: "system");
+    }
+
+    public async Task<ScheduledDeletionStatusDto> GetScheduledDeletionStatusAsync(Guid courseId)
+    {
+        var course = await _context.Courses
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.DeletedAt == null)
+            ?? throw new KeyNotFoundException("Course not found.");
+
+        var enrolledCount = await _context.Enrollments
+            .CountAsync(e => e.CourseId == courseId &&
+                           (e.Status == EnrollmentStatus.InProgress || e.Status == EnrollmentStatus.Completed));
+
+        return new ScheduledDeletionStatusDto
+        {
+            CourseId = course.Id,
+            ScheduledDeletionAt = course.ScheduledDeletionAt,
+            DeletionReason = course.DeletionReason,
+            IsReadOnlyForStudents = course.IsReadOnlyForStudents,
+            EnrolledStudentCount = enrolledCount
+        };
     }
 
     private async Task DeleteContentByItemAsync(SectionItem item)
@@ -554,7 +697,11 @@ public async Task<CourseDetailsDto> UpdateCourseAsync(Guid courseId, Guid instru
                 {
                     Id = o.Id,
                     OutcomeText = o.Description
-                }).ToList()
+                }).ToList(),
+
+            ScheduledDeletionAt = course.ScheduledDeletionAt,
+            DeletionReason = course.DeletionReason,
+            IsReadOnlyForStudents = course.IsReadOnlyForStudents
         };
     }
 

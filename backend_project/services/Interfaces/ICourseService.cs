@@ -29,4 +29,7 @@ public interface ICourseService
 
     // US6 - Deletion Lifecycle
     Task DeleteCourseAsync(Guid courseId, Guid instructorId);
+    Task ScheduleDeletionAsync(Guid courseId, Guid instructorId, DateTime scheduledDate, string? reason);
+    Task CancelScheduledDeletionAsync(Guid courseId, Guid instructorId);
+    Task<ScheduledDeletionStatusDto> GetScheduledDeletionStatusAsync(Guid courseId);
 }

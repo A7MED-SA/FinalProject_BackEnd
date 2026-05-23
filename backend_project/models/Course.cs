@@ -95,6 +95,16 @@ public class Course : BaseEntity
     [Column("deleted_at")]
     public DateTime? DeletedAt { get; set; }
 
+    [Column("scheduled_deletion_at")]
+    public DateTime? ScheduledDeletionAt { get; set; }
+
+    [Column("deletion_reason")]
+    [MaxLength(500)]
+    public string? DeletionReason { get; set; }
+
+    [Column("is_read_only_for_students")]
+    public bool IsReadOnlyForStudents { get; set; } = false;
+
     // Navigation Properties
     [ForeignKey("CreatedBy")]
     public virtual User Creator { get; set; } = null!;

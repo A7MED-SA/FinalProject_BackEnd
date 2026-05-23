@@ -128,6 +128,7 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.IPublicCourseServ
 
 // Background Services
 builder.Services.AddHostedService<backend_project.Services.Background.EditRequestCleanupService>();
+builder.Services.AddHostedService<backend_project.Services.Background.ScheduledDeletionService>();
 
 // Register ALL FluentValidation Validators
 builder.Services.AddFluentValidationAutoValidation();

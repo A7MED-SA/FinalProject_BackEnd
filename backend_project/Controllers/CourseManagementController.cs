@@ -104,6 +104,70 @@ public class CourseManagementController : ControllerBase
         {
             return StatusCode(403, backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+    }
+
+    [HttpPost("{id}/schedule-deletion")]
+    public async Task<IActionResult> ScheduleDeletion(Guid id, [FromBody] ScheduleDeletionDto dto)
+    {
+        try
+        {
+            var userId = GetUserId();
+            await _courseService.ScheduleDeletionAsync(id, userId, dto.ScheduledDate, dto.Reason);
+            return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Deletion scheduled successfully"));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(403, backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+    }
+
+    [HttpPost("{id}/cancel-scheduled-deletion")]
+    public async Task<IActionResult> CancelScheduledDeletion(Guid id)
+    {
+        try
+        {
+            var userId = GetUserId();
+            await _courseService.CancelScheduledDeletionAsync(id, userId);
+            return Ok(backend_project.DTOs.ApiResponse<object>.SuccessResponse(null, "Scheduled deletion cancelled successfully"));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(403, backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
+    }
+
+    [HttpGet("{id}/deletion-status")]
+    public async Task<IActionResult> GetDeletionStatus(Guid id)
+    {
+        try
+        {
+            var result = await _courseService.GetScheduledDeletionStatusAsync(id);
+            return Ok(backend_project.DTOs.ApiResponse<ScheduledDeletionStatusDto>.SuccessResponse(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(backend_project.DTOs.ApiResponse<object>.FailureResponse(ex.Message));
+        }
     }
 
     [HttpPut("{courseId}/image")]

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_project.Data;
 
@@ -11,9 +12,11 @@ using backend_project.Data;
 namespace backend_project.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260521172452_ContentLearningDeletion1")]
+    partial class ContentLearningDeletion1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -700,11 +703,6 @@ namespace backend_project.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("deleted_at");
 
-                    b.Property<string>("DeletionReason")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("deletion_reason");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("description");
@@ -720,10 +718,6 @@ namespace backend_project.Migrations
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit")
                         .HasColumnName("is_published");
-
-                    b.Property<bool>("IsReadOnlyForStudents")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_read_only_for_students");
 
                     b.Property<int>("Language")
                         .HasMaxLength(5)
@@ -750,10 +744,6 @@ namespace backend_project.Migrations
                     b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("rejection_reason");
-
-                    b.Property<DateTime?>("ScheduledDeletionAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("scheduled_deletion_at");
 
                     b.Property<string>("Slug")
                         .IsRequired()

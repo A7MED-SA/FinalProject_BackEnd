@@ -38,4 +38,17 @@ public class EnrollmentGuard
                                    && e.CourseId == courseId 
                                    && (e.Status == EnrollmentStatus.InProgress || e.Status == EnrollmentStatus.Completed));
     }
+
+    /// <summary>
+    /// Checks if a course is in read-only mode for students.
+    /// When true, students can view content but cannot interact (no quiz submissions, progress updates, etc.)
+    /// </summary>
+    public async Task<bool> IsCourseReadOnlyAsync(Guid courseId)
+    {
+        return await _context.Courses
+            .AsNoTracking()
+            .Where(c => c.Id == courseId && c.DeletedAt == null)
+            .Select(c => c.IsReadOnlyForStudents)
+            .FirstOrDefaultAsync();
+    }
 }
