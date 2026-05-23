@@ -126,6 +126,15 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.IVideoCommentServ
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICourseEditApprovalService, backend_project.Services.CourseEditApprovalService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IPublicCourseService, backend_project.Services.PublicCourseService>();
 
+// Commerce Services
+builder.Services.AddScoped<backend_project.Services.Interfaces.IPaymentGateway, backend_project.Services.Implementations.PaymentGateway.MockPaymentGateway>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ICartService, backend_project.Services.Implementations.CartService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ICouponService, backend_project.Services.Implementations.CouponService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IOrderService, backend_project.Services.Implementations.OrderService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IPaymentService, backend_project.Services.Implementations.PaymentService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IRefundService, backend_project.Services.Implementations.RefundService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IWishlistService, backend_project.Services.Implementations.WishlistService>();
+
 // Background Services
 builder.Services.AddHostedService<backend_project.Services.Background.EditRequestCleanupService>();
 builder.Services.AddHostedService<backend_project.Services.Background.ScheduledDeletionService>();
