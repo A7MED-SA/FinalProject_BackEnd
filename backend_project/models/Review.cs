@@ -51,7 +51,18 @@ public class Review : BaseEntity
     [Column("deleted_at")]
     public DateTime? DeletedAt { get; set; }
 
+    [Column("is_flagged")]
+    public bool IsFlagged { get; set; } = false;
+
+    [Column("flagged_by")]
+    public Guid? FlaggedBy { get; set; }
+
+    [Column("flagged_at")]
+    public DateTime? FlaggedAt { get; set; }
+
     // Navigation Properties
+    [ForeignKey("FlaggedBy")]
+    public virtual User? FlaggedByUser { get; set; }
     [ForeignKey("UserId")]
     public virtual User User { get; set; } = null!;
 

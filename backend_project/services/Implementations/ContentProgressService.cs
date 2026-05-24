@@ -13,10 +13,12 @@ namespace backend_project.Services.Implementations;
 public class ContentProgressService : IContentProgressService
 {
     private readonly ApplicationDbContext _context;
+    private readonly ICertificateService _certificateService;
 
-    public ContentProgressService(ApplicationDbContext context)
+    public ContentProgressService(ApplicationDbContext context, ICertificateService certificateService)
     {
         _context = context;
+        _certificateService = certificateService;
     }
 
     public async Task<ContentProgressDto> UpdateProgressAsync(Guid enrollmentId, UpdateProgressDto updateDto)
@@ -124,6 +126,15 @@ public class ContentProgressService : IContentProgressService
         {
             enrollment.Status = EnrollmentStatus.Completed;
             enrollment.CompletedAt ??= DateTime.UtcNow;
+
+            try
+            {
+                await _certificateService.GenerateCertificateAsync(enrollmentId);
+            }
+            catch
+            {
+                // Certificate generation failure should not block progress update
+            }
         }
 
         await _context.SaveChangesAsync();

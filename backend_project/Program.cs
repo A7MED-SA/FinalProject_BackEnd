@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using backend_project.Services.Notifications;
 using backend_project.Services.TeacherRequests;
 using backend_project.Hubs;
@@ -134,6 +136,8 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.IOrderService, ba
 builder.Services.AddScoped<backend_project.Services.Interfaces.IPaymentService, backend_project.Services.Implementations.PaymentService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IRefundService, backend_project.Services.Implementations.RefundService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IWishlistService, backend_project.Services.Implementations.WishlistService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IReviewService, backend_project.Services.Implementations.ReviewService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ICertificateService, backend_project.Services.Implementations.CertificateService>();
 
 // Background Services
 builder.Services.AddHostedService<backend_project.Services.Background.EditRequestCleanupService>();
@@ -202,6 +206,18 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi  
 builder.Services.AddOpenApi();
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("CertificateVerification", config =>
+    {
+        config.PermitLimit = 20;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        config.QueueLimit = 5;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 var app = builder.Build();
 
 // Seed database
@@ -238,6 +254,8 @@ app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseRateLimiter();
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");

@@ -304,10 +304,23 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Review>()
+            .HasOne(r => r.FlaggedByUser)
+            .WithMany()
+            .HasForeignKey(r => r.FlaggedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Review>()
             .HasMany(r => r.ReviewHelpfuls)
             .WithOne(rh => rh.Review)
             .HasForeignKey(rh => rh.ReviewId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Review>()
+            .HasIndex(r => new { r.UserId, r.CourseId })
+            .IsUnique();
+
+        modelBuilder.Entity<Review>()
+            .HasIndex(r => r.IsFlagged);
 
         modelBuilder.Entity<ReviewHelpful>()
             .HasOne(rh => rh.User)
@@ -327,6 +340,22 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .WithMany()
             .HasForeignKey(c => c.CourseId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Certificate>()
+            .HasOne(c => c.Enrollment)
+            .WithMany()
+            .HasForeignKey(c => c.EnrollmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Certificate>()
+            .HasOne(c => c.RevokedByUser)
+            .WithMany()
+            .HasForeignKey(c => c.RevokedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Certificate>()
+            .HasIndex(c => c.VerificationCode)
+            .IsUnique();
 
         // Coupon Relationships
         modelBuilder.Entity<Coupon>()

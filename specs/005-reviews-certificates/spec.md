@@ -5,11 +5,21 @@
 **Status**: Draft  
 **Input**: User description: "عايز اعمل Reviews & Certificates بس مش عارف ايه فايدة ده - `GET /api/certificates/verify/{code}` — تحقق عام من شهادة"
 
+## Clarifications
+
+### Session 2026-05-23
+
+- Q: Course review visibility → A: Public — anyone, including unauthenticated visitors, can see reviews on the course page.
+- Q: Certificate verification name privacy → A: Full name displayed on public verification page.
+- Q: Review deletion behavior → A: Soft delete — hidden from public, retained for admin/analytics.
+- Q: Instructor review interaction → A: View + flag — instructors can see reviews for their courses and flag inappropriate ones for admin review.
+- Q: Review moderation flow → A: Manual admin review — flagged reviews are queued for admin to review and decide to hide or dismiss.
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Course Reviews & Ratings (Priority: P1)
 
-Students who have completed a course can leave a star rating (1–5) and an optional written review. Reviews appear on the course page so future students can make informed enrollment decisions. Students can edit or delete their own reviews.
+Students who have completed a course can leave a star rating (1–5) and an optional written review. Reviews appear publicly on the course page (visible to anyone, including unauthenticated visitors) so future students can make informed enrollment decisions. Students can edit or delete their own reviews. When a student deletes a review, it is soft-deleted (hidden from public but retained in the database for admin access and analytics).
 
 **Why this priority**: Reviews build social proof, the most immediate value for the platform. Without reviews, new students have no way to gauge course quality from peers.
 
@@ -59,7 +69,7 @@ Anyone — including employers, other platforms, or logged-out visitors — can 
 
 ### User Story 4 - Certificate Sharing & Download (Priority: P3)
 
-Students can view a list of all their earned certificates, download each as a shareable file (e.g., PDF), and share a direct link to the public verification page. [NEEDS CLARIFICATION: How should the certificate be shareable — as a downloadable PDF, as a link-based share, or both? If PDF, should it include a background design/logo or be a plain text document?]
+Students can view a list of all their earned certificates, download each as a PDF with platform branding, and share a direct link to the public verification page.
 
 **Why this priority**: Sharing enables students to showcase achievements on LinkedIn, CVs, and professional profiles — increasing the platform's visibility and the certificate's value.
 
@@ -78,8 +88,10 @@ Students can view a list of all their earned certificates, download each as a sh
 - What happens if a student's enrollment is refunded? The certificate should be revoked, and the public verification page should show "Revoked" status.
 - Can the same certificate code be generated for two different students? No — each certificate's verification code must be globally unique.
 - What happens if a course is deleted or hidden after certificates were issued? Existing certificates should remain valid and verifiable.
-- Can an admin manually revoke a certificate? [NEEDS CLARIFICATION: Should admins have the ability to manually revoke certificates (e.g., for academic dishonesty), or is revocation only triggered automatically by refunds?]
+- Can an admin manually revoke a certificate? Yes — admins can manually revoke certificates for reasons such as academic dishonesty or policy violations, in addition to automatic revocation on refund.
 - What rating is displayed when a course has no reviews? Display "No reviews yet" instead of a 0-star average.
+- Can instructors see reviews for their courses? Yes — instructors can view all reviews for their courses and flag inappropriate ones for admin review. They cannot edit or delete reviews themselves.
+- How are flagged reviews moderated? Flagged reviews are queued for manual admin review. Admins can review flagged reviews and either hide (soft-delete) them or dismiss the flag and keep the review visible.
 
 ## Requirements
 
@@ -94,7 +106,7 @@ Students can view a list of all their earned certificates, download each as a sh
 - **FR-007**: System MUST return "Certificate not found" for non-existent or invalid codes on the verification endpoint.
 - **FR-008**: System MUST revoke a certificate when the corresponding enrollment is refunded, and show "Revoked" status on verification.
 - **FR-009**: Students MUST be able to view a list of all their earned certificates.
-- **FR-010**: Students MUST be able to download their certificates as a shareable file.
+- **FR-010**: Students MUST be able to download their certificates as a PDF with platform branding.
 - **FR-011**: System MUST provide a shareable link for each certificate pointing to the public verification page.
 - **FR-012**: Existing certificates MUST remain valid and verifiable even if the course is later unpublished.
 
@@ -118,6 +130,6 @@ Students can view a list of all their earned certificates, download each as a sh
 
 - Course completion is determined by the existing enrollment/completion tracking system (all sections viewed, required quizzes passed).
 - Students are already authenticated via the platform's existing authentication system.
-- Certificate files (PDFs) will use a simple template with the platform logo, student name, course title, and completion date — custom branding is out of scope for v1.
+- Certificate PDFs will include the platform logo/branding, student name, course title, completion date, and unique verification code.
 - The unique verification code format will use a human-readable format (e.g., `CERT-XXXX-XXXX-XXXX`) rather than a raw UUID, for ease of manual entry.
 - Mobile app support is out of scope — this feature targets the web platform only.

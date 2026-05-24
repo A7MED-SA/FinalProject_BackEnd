@@ -3,3 +3,17 @@ obj/
 *.user
 *.suo
 packages/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+.vs/
+*.csproj.user
+*.dbmdl
+*.testlog
+*.trx
+coverage/
+coverage.*/
+TestResults/
+*.nupkg
+*.snupkg

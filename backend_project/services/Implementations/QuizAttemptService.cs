@@ -13,10 +13,12 @@ namespace backend_project.Services.Implementations;
 public class QuizAttemptService : IQuizAttemptService
 {
     private readonly ApplicationDbContext _context;
+    private readonly ICertificateService _certificateService;
 
-    public QuizAttemptService(ApplicationDbContext context)
+    public QuizAttemptService(ApplicationDbContext context, ICertificateService certificateService)
     {
         _context = context;
+        _certificateService = certificateService;
     }
 
     public async Task<QuizAttemptResponseDto> StartAttemptAsync(Guid quizId, Guid enrollmentId)
@@ -234,7 +236,7 @@ public class QuizAttemptService : IQuizAttemptService
 
         if (passed && isNewSubmission)
         {
-            var contentProgressService = new ContentProgressService(_context);
+            var contentProgressService = new ContentProgressService(_context, _certificateService);
             await contentProgressService.MarkCompletedAsync(
                 attempt.EnrollmentId, attempt.QuizId, ContentType.Quiz);
         }

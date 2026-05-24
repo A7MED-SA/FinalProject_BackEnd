@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "fbck6PbSp88=",
+  "dgSpecHash": "cRUaNPZO2MY=",
   "success": true,
   "projectFilePath": "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/FinalProject_BackEnd/backend_project/backend_project.csproj",
   "expectedPackageFiles": [
@@ -78,6 +78,7 @@
     "/home/ahmedelewaa/.nuget/packages/nswag.core.yaml/14.6.1/nswag.core.yaml.14.6.1.nupkg.sha512",
     "/home/ahmedelewaa/.nuget/packages/nswag.generation/14.6.1/nswag.generation.14.6.1.nupkg.sha512",
     "/home/ahmedelewaa/.nuget/packages/nswag.generation.aspnetcore/14.6.1/nswag.generation.aspnetcore.14.6.1.nupkg.sha512",
+    "/home/ahmedelewaa/.nuget/packages/questpdf/2026.5.0/questpdf.2026.5.0.nupkg.sha512",
     "/home/ahmedelewaa/.nuget/packages/system.clientmodel/1.0.0/system.clientmodel.1.0.0.nupkg.sha512",
     "/home/ahmedelewaa/.nuget/packages/system.codedom/7.0.0/system.codedom.7.0.0.nupkg.sha512",
     "/home/ahmedelewaa/.nuget/packages/system.collections.immutable/7.0.0/system.collections.immutable.7.0.0.nupkg.sha512",

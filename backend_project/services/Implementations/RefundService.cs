@@ -116,6 +116,18 @@ public class RefundService : IRefundService
             {
                 enrollment.Status = EnrollmentStatus.Refunded;
                 enrollment.IsRefunded = true;
+
+                if (enrollment.CertificateId.HasValue)
+                {
+                    var certificate = await _context.Certificates
+                        .FirstOrDefaultAsync(c => c.Id == enrollment.CertificateId.Value);
+                    if (certificate != null && certificate.Status == CertificateStatus.Valid)
+                    {
+                        certificate.Status = CertificateStatus.Revoked;
+                        certificate.RevokedAt = DateTime.UtcNow;
+                        certificate.RevokedBy = adminId;
+                    }
+                }
             }
         }
 
