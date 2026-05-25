@@ -104,8 +104,8 @@
 **Purpose**: Cleanup, DI audit, and edge case hardening
 
 - [X] T023 Audit all DI registrations in `backend_project/Program.cs` for reviews and certificates services
-- [X] T024 [P] Add ActivityLog calls for certificate generation and admin revocation
-- [X] T025 [P] Add guard for zero-mandatory-items courses (certificate generation should not trigger for courses with no mandatory content)
+- [X] T024 [P] Add ActivityLog calls for certificate generation, admin revocation, review flagging, and review moderation
+- [X] T025 [P] Add guard for zero-mandatory-items courses (certificate generation should not trigger for courses with no mandatory content) — handled by early return in ContentProgressService.RecalculateEnrollmentProgressAsync when totalMandatory == 0
 - [X] T026 Add rate limiting consideration for public verification endpoint (prevent abuse)
 - [X] T027 [P] Add unique constraint for `(UserId, CourseId)` on Reviews in ApplicationDbContext configuration
 - [X] T028 [P] Add unique index on Certificate.Code in ApplicationDbContext configuration

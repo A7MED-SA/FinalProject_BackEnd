@@ -139,6 +139,11 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.IWishlistService,
 builder.Services.AddScoped<backend_project.Services.Interfaces.IReviewService, backend_project.Services.Implementations.ReviewService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.ICertificateService, backend_project.Services.Implementations.CertificateService>();
 
+// Dashboard Services
+builder.Services.AddScoped<backend_project.Services.Interfaces.IStudentDashboardService, backend_project.Services.Implementations.StudentDashboardService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IInstructorDashboardService, backend_project.Services.Implementations.InstructorDashboardService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IAdminDashboardService, backend_project.Services.Implementations.AdminDashboardService>();
+
 // Background Services
 builder.Services.AddHostedService<backend_project.Services.Background.EditRequestCleanupService>();
 builder.Services.AddHostedService<backend_project.Services.Background.ScheduledDeletionService>();
