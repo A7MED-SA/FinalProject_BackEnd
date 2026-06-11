@@ -43,5 +43,9 @@ public enum ActivityLogEntityType
     User,
     Course,
     Review,
-    Order
+    Order,
+    Message,
+    Announcement,
+    SystemSetting,
+    Report
 }

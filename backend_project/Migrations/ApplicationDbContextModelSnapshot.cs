@@ -243,6 +243,10 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("content");
 
+                    b.Property<Guid?>("CourseId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("course_id");
+
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("created_by");
@@ -271,6 +275,8 @@ namespace backend_project.Migrations
                         .HasColumnName("title");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("CreatedBy");
 
@@ -1212,6 +1218,10 @@ namespace backend_project.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("content");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_deleted");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit")
                         .HasColumnName("is_read");
@@ -1774,6 +1784,10 @@ namespace backend_project.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
+                    b.Property<string>("AdminNote")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("admin_note");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at");
@@ -1815,9 +1829,10 @@ namespace backend_project.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReporterId");
-
                     b.HasIndex("ResolvedBy");
+
+                    b.HasIndex("ReporterId", "EntityType", "EntityId")
+                        .IsUnique();
 
                     b.ToTable("reports");
                 });
@@ -2894,11 +2909,17 @@ namespace backend_project.Migrations
 
             modelBuilder.Entity("backend_project.Models.Announcement", b =>
                 {
+                    b.HasOne("backend_project.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId");
+
                     b.HasOne("backend_project.Models.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Course");
 
                     b.Navigation("Creator");
                 });

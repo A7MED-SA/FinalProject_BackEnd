@@ -28,6 +28,9 @@ public class Message : BaseEntity
     [Column("read_at")]
     public DateTime? ReadAt { get; set; }
 
+    [Column("is_deleted")]
+    public bool IsDeleted { get; set; } = false;
+
     // Navigation Properties
     [ForeignKey("SenderId")]
     public virtual User Sender { get; set; } = null!;

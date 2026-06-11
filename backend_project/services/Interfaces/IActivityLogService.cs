@@ -22,4 +22,14 @@ public interface IActivityLogService
         ActivityLogEntityType entityType,
         Guid entityId,
         string details);
+
+    Task<(IEnumerable<ActivityLog> Items, int TotalCount)> GetLogsAsync(
+        Guid? userId = null,
+        string? action = null,
+        string? entityType = null,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null,
+        string? ipAddress = null,
+        int page = 1,
+        int pageSize = 50);
 }

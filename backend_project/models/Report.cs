@@ -26,6 +26,9 @@ public class Report : BaseEntity
     [Column("description")]
     public string? Description { get; set; }
 
+    [Column("admin_note")]
+    public string? AdminNote { get; set; }
+
     [Column("status")]
     [MaxLength(20)]
     public ReportStatus Status { get; set; } = ReportStatus.Pending;
@@ -52,7 +55,8 @@ public enum ReportEntityType
     Course,
     Review,
     Comment,
-    User
+    User,
+    Message
 }
 
 public enum ReportReason
@@ -60,12 +64,13 @@ public enum ReportReason
     Spam,
     Inappropriate,
     Copyright,
-    Other
+    Other,
+    Harassment
 }
 
 public enum ReportStatus
 {
     Pending,
-    Resolved,
-    Rejected
+    Dismissed,
+    ActionTaken
 }

@@ -27,6 +27,9 @@ public class Announcement : BaseEntity
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
+    [Column("course_id")]
+    public Guid? CourseId { get; set; }
+
     [Column("published_at")]
     public DateTime? PublishedAt { get; set; }
 
@@ -36,6 +39,9 @@ public class Announcement : BaseEntity
     // Navigation Properties
     [ForeignKey("CreatedBy")]
     public virtual User Creator { get; set; } = null!;
+
+    [ForeignKey("CourseId")]
+    public virtual Course? Course { get; set; }
 }
 
 public enum AnnouncementTarget
@@ -43,5 +49,6 @@ public enum AnnouncementTarget
     All,
     Students,
     Teachers,
-    Admins
+    Admins,
+    SpecificCourse
 }

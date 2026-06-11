@@ -3,6 +3,12 @@ obj/
 *.user
 *.suo
 packages/
+.vscode/
+.idea/
+*.log
+.env*
+Thumbs.db
+.DS_Store
 *.log
 *.tmp
 .DS_Store

@@ -623,6 +623,10 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .HasForeignKey(r => r.ResolvedBy)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Report>()
+            .HasIndex(r => new { r.ReporterId, r.EntityType, r.EntityId })
+            .IsUnique();
+
         modelBuilder.Entity<ActivityLog>()
             .HasOne(al => al.User)
             .WithMany()

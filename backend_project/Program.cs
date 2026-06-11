@@ -98,6 +98,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddAuthorization();
 
+// Add Memory Cache
+builder.Services.AddMemoryCache();
+
 // Register Services
 builder.Services.AddScoped<backend_project.Services.IEmailService, backend_project.Services.EmailService>();
 builder.Services.AddScoped<backend_project.Services.IFileService, backend_project.Services.FileService>();
@@ -143,6 +146,12 @@ builder.Services.AddScoped<backend_project.Services.Interfaces.ICertificateServi
 builder.Services.AddScoped<backend_project.Services.Interfaces.IStudentDashboardService, backend_project.Services.Implementations.StudentDashboardService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IInstructorDashboardService, backend_project.Services.Implementations.InstructorDashboardService>();
 builder.Services.AddScoped<backend_project.Services.Interfaces.IAdminDashboardService, backend_project.Services.Implementations.AdminDashboardService>();
+
+// Communication Services
+builder.Services.AddScoped<backend_project.Services.Interfaces.IMessageService, backend_project.Services.Implementations.MessageService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IAnnouncementService, backend_project.Services.Implementations.AnnouncementService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.ISystemSettingService, backend_project.Services.Implementations.SystemSettingService>();
+builder.Services.AddScoped<backend_project.Services.Interfaces.IReportService, backend_project.Services.Implementations.ReportService>();
 
 // Background Services
 builder.Services.AddHostedService<backend_project.Services.Background.EditRequestCleanupService>();
@@ -220,6 +229,12 @@ builder.Services.AddRateLimiter(options =>
         config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         config.QueueLimit = 5;
     });
+    options.AddFixedWindowLimiter("Messaging", config =>
+    {
+        config.PermitLimit = 30;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueLimit = 0;
+    });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
@@ -264,5 +279,6 @@ app.UseRateLimiter();
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<MessageHub>("/hubs/messages");
 
 app.Run();
