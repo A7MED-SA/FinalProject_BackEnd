@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Athary Team</Authors>
+    <Product>Athary LMS</Product>
+    <Description>منصة آثاري التعليمية - نظام إدارة التعلم</Description>
+    <Copyright>Copyright © 2026 Athary</Copyright>
+    <RepositoryUrl>https://github.com/athary/lms</RepositoryUrl>
+  </PropertyGroup>
+</Project>

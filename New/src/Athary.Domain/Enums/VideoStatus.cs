@@ -1,0 +1,8 @@
+namespace Athary.Domain.Enums;
+
+public enum VideoStatus
+{
+    Processing,
+    Ready,
+    Failed
+}

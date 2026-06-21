@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/FinalProject_BackEnd/backend_project/backend_project.csproj": {}
+    "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/Final_New/New_Backend/backend_project/backend_project.csproj": {}
   },
   "projects": {
-    "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/FinalProject_BackEnd/backend_project/backend_project.csproj": {
+    "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/Final_New/New_Backend/backend_project/backend_project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/FinalProject_BackEnd/backend_project/backend_project.csproj",
+        "projectUniqueName": "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/Final_New/New_Backend/backend_project/backend_project.csproj",
         "projectName": "backend_project",
-        "projectPath": "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/FinalProject_BackEnd/backend_project/backend_project.csproj",
+        "projectPath": "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/Final_New/New_Backend/backend_project/backend_project.csproj",
         "packagesPath": "/home/ahmedelewaa/.nuget/packages/",
-        "outputPath": "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/FinalProject_BackEnd/backend_project/obj/",
+        "outputPath": "/media/ahmedelewaa/01D8D2F130BAA800/Projects/New folder (2)/Final_New/New_Backend/backend_project/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/ahmedelewaa/.nuget/NuGet/NuGet.Config"

@@ -1,0 +1,46 @@
+using Athary.Application.Interfaces.Courses;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace Athary.Infrastructure.Workers;
+
+public class EditRequestCleanupService : BackgroundService
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<EditRequestCleanupService> _logger;
+    private readonly TimeSpan _interval = TimeSpan.FromHours(24);
+
+    public EditRequestCleanupService(IServiceProvider serviceProvider, ILogger<EditRequestCleanupService> logger)
+    {
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("EditRequestCleanupService started");
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                _logger.LogInformation("Running edit request cleanup at {Time}", DateTime.UtcNow);
+
+                using var scope = _serviceProvider.CreateScope();
+                var approvalService = scope.ServiceProvider.GetRequiredService<ICourseEditApprovalService>();
+
+                var count = await approvalService.CleanupExpiredRequestsAsync(stoppingToken);
+                _logger.LogInformation("Cleaned up {Count} expired edit requests", count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during edit request cleanup");
+            }
+
+            await Task.Delay(_interval, stoppingToken);
+        }
+
+        _logger.LogInformation("EditRequestCleanupService stopped");
+    }
+}
