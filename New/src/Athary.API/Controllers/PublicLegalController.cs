@@ -8,6 +8,8 @@ namespace Athary.API.Controllers;
 
 [ApiController]
 [Route("api/public/legal")]
+[ApiExplorerSettings(GroupName = "Public")]
+[Tags("Public - Legal")]
 public class PublicLegalController : ControllerBase
 {
     private readonly ILegalPageService _legalPageService;

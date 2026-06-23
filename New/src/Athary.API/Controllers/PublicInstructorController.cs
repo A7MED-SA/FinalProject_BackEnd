@@ -8,6 +8,8 @@ namespace Athary.API.Controllers;
 
 [ApiController]
 [Route("api/public/instructors")]
+[ApiExplorerSettings(GroupName = "Public")]
+[Tags("Public - Instructors")]
 public class PublicInstructorController : ControllerBase
 {
     private readonly IProfileService _profileService;

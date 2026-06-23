@@ -10,6 +10,8 @@ namespace Athary.API.Controllers;
 [ApiController]
 [Route("api/notifications/preferences")]
 [Authorize]
+[ApiExplorerSettings(GroupName = "User")]
+[Tags("User - Notifications")]
 public class NotificationPreferencesController : ControllerBase
 {
     private readonly INotificationPreferenceService _service;

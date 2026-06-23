@@ -25,7 +25,7 @@
 - [x] T004 [P] Create ContactMessage entity in New/src/Athary.Domain/Entities/ContactMessage.cs
 - [x] T005 [P] Create LegalPage entity in New/src/Athary.Domain/Entities/LegalPage.cs
 - [x] T006 Add DbSets and indexes for new entities in New/src/Athary.Infrastructure/Data/AppDbContext.cs
-- [ ] T007 Create EF Core migration for new entities and indexes
+- [x] T007 Create EF Core migration for new entities and indexes
 
 ---
 
@@ -109,7 +109,7 @@
 - [x] T027 [P] [US4] Create INotificationPreferenceService interface in New/src/Athary.Application/Interfaces/INotificationPreferenceService.cs
 - [x] T028 [US4] Implement NotificationPreferenceService in New/src/Athary.Application/Services/NotificationPreferenceService.cs
 - [x] T029 [US4] Create NotificationPreferencesController in New/src/Athary.API/Controllers/NotificationPreferencesController.cs
-- [ ] T030 [US4] Add seed data migration for existing users in New/src/Athary.Infrastructure/Data/AppDbContext.cs
+- [x] T030 [US4] Add seed data migration for existing users in New/src/Athary.Infrastructure/Data/AppDbContext.cs
 
 **Checkpoint**: At this point, User Stories 1-4 should all work independently
 
@@ -141,7 +141,7 @@
 
 ### Implementation for User Story 6
 
-- [ ] T036 [US6] Create PublicAboutController in New/src/Athary.API/Controllers/PublicAboutController.cs
+- [x] T036 [US6] Create PublicAboutController in New/src/Athary.API/Controllers/PublicAboutController.cs
 
 **Checkpoint**: At this point, User Stories 1-6 should all work independently
 
@@ -155,10 +155,10 @@
 
 ### Implementation for User Story 7
 
-- [ ] T037 [P] [US7] Create LegalPageDto in New/src/Athary.Application/DTOs/Public/LegalPageDto.cs
-- [ ] T038 [P] [US7] Create ILegalPageService interface in New/src/Athary.Application/Interfaces/ILegalPageService.cs
-- [ ] T039 [US7] Implement LegalPageService in New/src/Athary.Application/Services/LegalPageService.cs
-- [ ] T040 [US7] Create PublicLegalController with type validation in New/src/Athary.API/Controllers/PublicLegalController.cs
+- [x] T037 [P] [US7] Create LegalPageDto in New/src/Athary.Application/DTOs/Public/LegalPageDto.cs
+- [x] T038 [P] [US7] Create ILegalPageService interface in New/src/Athary.Application/Interfaces/ILegalPageService.cs
+- [x] T039 [US7] Implement LegalPageService in New/src/Athary.Application/Services/LegalPageService.cs
+- [x] T040 [US7] Create PublicLegalController with type validation in New/src/Athary.API/Controllers/PublicLegalController.cs
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,10 +168,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Add Swagger/OpenAPI documentation attributes to all new controllers
-- [ ] T042 [P] Add performance indexes for search queries in New/src/Athary.Infrastructure/Data/AppDbContext.cs
+- [x] T041 [P] Add Swagger/OpenAPI documentation attributes to all new controllers
+- [x] T042 [P] Add performance indexes for search queries in New/src/Athary.Infrastructure/Data/AppDbContext.cs
 - [ ] T043 Run quickstart.md validation scenarios
-- [ ] T044 Verify all migrations apply cleanly
+- [x] T044 Verify all migrations apply cleanly
 
 ---
 

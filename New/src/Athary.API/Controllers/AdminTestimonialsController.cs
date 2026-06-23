@@ -9,6 +9,8 @@ namespace Athary.API.Controllers;
 [ApiController]
 [Route("api/admin/testimonials")]
 [Authorize(Roles = "Admin")]
+[ApiExplorerSettings(GroupName = "Admin")]
+[Tags("Admin - Testimonials")]
 public class AdminTestimonialsController : ControllerBase
 {
     private readonly ITestimonialService _testimonialService;

@@ -27,6 +27,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((ctx, cfg) => cfg.ReadFrom.Configuration(ctx.Configuration));
 
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
+
 // Configure Settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
@@ -229,16 +231,18 @@ builder.Services.AddHsts(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+Log.Information("Application starting on {Urls}", "http://0.0.0.0:5000");
+
+app.MapOpenApi();
+app.UseSwaggerUi(options => options.DocumentPath = "/openapi/v1.json");
+
+if (app.Environment.IsProduction())
 {
-    app.MapOpenApi();
-    app.UseSwaggerUi(options => options.DocumentPath = "/openapi/v1.json");
+    if (!app.Environment.IsEnvironment("Test"))
+        app.UseHttpsRedirection();
+
+    app.UseHsts();
 }
-
-if (!app.Environment.IsEnvironment("Test"))
-    app.UseHttpsRedirection();
-
-app.UseHsts();
 
 app.UseResponseCompression();
 
@@ -264,6 +268,15 @@ app.MapHealthChecks("/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.
 app.MapControllers();
 app.MapHub<NotificationHub>("/api/hubs/notifications");
 app.MapHub<MessageHub>("/api/hubs/messaging");
+
+app.MapGet("/", () => Results.Ok(new
+{
+    name = "Athary Platform API",
+    version = "1.0",
+    swagger = "/swagger",
+    openapi = "/openapi/v1.json",
+    health = "/health"
+}));
 
 // Database initialization
 using (var scope = app.Services.CreateScope())

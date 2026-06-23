@@ -9,6 +9,8 @@ namespace Athary.API.Controllers;
 
 [ApiController]
 [Route("api/public/contact")]
+[ApiExplorerSettings(GroupName = "Public")]
+[Tags("Public - Contact")]
 public class PublicContactController : ControllerBase
 {
     private readonly IContactService _contactService;

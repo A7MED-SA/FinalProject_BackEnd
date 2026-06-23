@@ -1,4 +1,5 @@
 using Athary.Domain.Entities;
+using Athary.Infrastructure.Data.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,12 +11,20 @@ public static class DbSeeder
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+        var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         // Seed Roles
         await SeedRolesAsync(roleManager);
 
         // Seed Admin User
         await SeedAdminUserAsync(userManager);
+
+        // Seed Notification Preferences for existing users
+        await NotificationPreferenceSeeder.SeedAsync(context);
+
+        // Seed Testimonials
+        await TestimonialSeeder.SeedAsync(context);
     }
 
     private static async Task SeedRolesAsync(RoleManager<Role> roleManager)

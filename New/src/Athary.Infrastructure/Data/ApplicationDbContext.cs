@@ -816,6 +816,14 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .HasIndex(cm => cm.IsRead)
             .HasFilter("[IsRead] = 0");
 
+        modelBuilder.Entity<ContactMessage>()
+            .HasIndex(cm => cm.CreatedAt)
+            .HasDatabaseName("IX>ContactMessages_CreatedAt");
+
+        modelBuilder.Entity<ContactMessage>()
+            .HasIndex(cm => cm.Email)
+            .HasDatabaseName("IX_ContactMessages_Email");
+
         // LegalPage Relationships
         modelBuilder.Entity<LegalPage>()
             .HasOne(lp => lp.LastUpdatedBy)
@@ -827,11 +835,59 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
             .HasIndex(lp => lp.Type)
             .IsUnique();
 
+        modelBuilder.Entity<LegalPage>()
+            .HasIndex(lp => lp.IsPublished)
+            .HasDatabaseName("IX_LegalPages_IsPublished");
+
+        modelBuilder.Entity<Testimonial>()
+            .HasIndex(t => t.Rating)
+            .HasDatabaseName("IX_Testimonials_Rating");
+
         // User Slug Index
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Slug)
             .IsUnique()
             .HasFilter("[Slug] IS NOT NULL");
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.FirstName)
+            .HasDatabaseName("IX_Users_FirstName");
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.LastName)
+            .HasDatabaseName("IX_Users_LastName");
+
+        modelBuilder.Entity<Course>()
+            .HasIndex(c => c.Title)
+            .HasDatabaseName("IX_Courses_Title");
+
+        modelBuilder.Entity<Course>()
+            .HasIndex(c => c.Status)
+            .HasDatabaseName("IX_Courses_Status");
+
+        modelBuilder.Entity<Enrollment>()
+            .HasIndex(e => e.Status)
+            .HasDatabaseName("IX_Enrollments_Status");
+
+        modelBuilder.Entity<Order>()
+            .HasIndex(o => o.Status)
+            .HasDatabaseName("IX_Orders_Status");
+
+        modelBuilder.Entity<Order>()
+            .HasIndex(o => o.CreatedAt)
+            .HasDatabaseName("IX_Orders_CreatedAt");
+
+        modelBuilder.Entity<Payment>()
+            .HasIndex(p => p.Status)
+            .HasDatabaseName("IX_Payments_Status");
+
+        modelBuilder.Entity<ActivityLog>()
+            .HasIndex(al => al.Action)
+            .HasDatabaseName("IX_ActivityLogs_Action");
+
+        modelBuilder.Entity<ActivityLog>()
+            .HasIndex(al => al.CreatedAt)
+            .HasDatabaseName("IX_ActivityLogs_CreatedAt");
 
         // Soft Delete Query Filters
         modelBuilder.Entity<User>().HasQueryFilter(e => e.DeletedAt == null);

@@ -9,6 +9,8 @@ namespace Athary.API.Controllers;
 
 [ApiController]
 [Route("api/public/testimonials")]
+[ApiExplorerSettings(GroupName = "Public")]
+[Tags("Public - Testimonials")]
 public class PublicTestimonialsController : ControllerBase
 {
     private readonly ITestimonialService _testimonialService;

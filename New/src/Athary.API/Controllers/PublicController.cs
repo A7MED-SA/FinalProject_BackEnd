@@ -8,6 +8,8 @@ namespace Athary.API.Controllers;
 
 [ApiController]
 [Route("api/public")]
+[ApiExplorerSettings(GroupName = "Public")]
+[Tags("Public - Landing")]
 public class PublicController : ControllerBase
 {
     private readonly IPublicService _publicService;

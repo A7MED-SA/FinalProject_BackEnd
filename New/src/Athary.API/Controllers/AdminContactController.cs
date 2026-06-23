@@ -9,6 +9,8 @@ namespace Athary.API.Controllers;
 [ApiController]
 [Route("api/admin/contact")]
 [Authorize(Roles = "Admin")]
+[ApiExplorerSettings(GroupName = "Admin")]
+[Tags("Admin - Contact")]
 public class AdminContactController : ControllerBase
 {
     private readonly IContactService _contactService;

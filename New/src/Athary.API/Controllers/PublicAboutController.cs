@@ -8,6 +8,8 @@ namespace Athary.API.Controllers;
 
 [ApiController]
 [Route("api/public/about")]
+[ApiExplorerSettings(GroupName = "Public")]
+[Tags("Public - About")]
 public class PublicAboutController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
