@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Athary.Application.DTOs.Profile;
 using Athary.Application.Interfaces.Media;
 using Athary.Application.Interfaces.Profile;
@@ -72,6 +73,85 @@ public sealed class ProfileService : IProfileService
                 : null,
             CreatedAt = user.CreatedAt
         };
+    }
+
+    public async Task<PublicProfileDto?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    {
+        var user = await _context.Users
+            .Where(u => u.Slug == slug && u.DeletedAt == null)
+            .Include(u => u.ProfileImageFile)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (user is null)
+            return null;
+
+        return new PublicProfileDto
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Slug = user.Slug,
+            Bio = user.Bio,
+            Nationality = user.Nationality,
+            ProfileImageUrl = user.ProfileImageFile is not null
+                ? _objectStorage.GetPublicUrl(user.ProfileImageFile.Bucket, user.ProfileImageFile.FilePath)
+                : null,
+            CreatedAt = user.CreatedAt
+        };
+    }
+
+    public async Task<bool> IsSlugAvailableAsync(string slug, CancellationToken cancellationToken = default)
+    {
+        return !await _context.Users.AnyAsync(u => u.Slug == slug, cancellationToken);
+    }
+
+    public async Task<string> GenerateSlugAsync(string fullName, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("Full name cannot be empty", nameof(fullName));
+
+        var baseSlug = fullName.Trim().ToLower()
+            .Replace(" ", "-")
+            .Replace(".", "")
+            .Replace("'", "")
+            .Replace("(", "")
+            .Replace(")", "");
+
+        baseSlug = Regex.Replace(baseSlug, @"[^a-z0-9-\u0600-\u06FF]", "");
+
+        if (string.IsNullOrWhiteSpace(baseSlug) || baseSlug.Length < 3)
+            baseSlug = $"user-{Guid.NewGuid().ToString()[..8]}";
+
+        var slug = baseSlug;
+        var counter = 1;
+
+        while (!await IsSlugAvailableAsync(slug, cancellationToken))
+        {
+            slug = $"{baseSlug}-{counter}";
+            counter++;
+        }
+
+        return slug;
+    }
+
+    public async Task<List<PublicProfileDto>> SearchBySlugAsync(string query, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .Where(u => u.DeletedAt == null &&
+                        (u.Slug != null && u.Slug.Contains(query) ||
+                         ($"{u.FirstName} {u.LastName}").Contains(query)))
+            .Include(u => u.ProfileImageFile)
+            .Select(u => new PublicProfileDto
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                Slug = u.Slug,
+                Bio = u.Bio,
+                ProfileImageUrl = u.ProfileImageFile != null
+                    ? u.ProfileImageFile.Bucket + "/" + u.ProfileImageFile.FilePath
+                    : null
+            })
+            .Take(10)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<ProfileDto> UpdateProfileAsync(Guid userId, UpdateProfileDto dto, CancellationToken cancellationToken = default)

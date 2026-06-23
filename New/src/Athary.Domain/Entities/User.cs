@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Athary.Domain.Enums;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
@@ -35,6 +36,11 @@ public class User : IdentityUser<Guid>
     public Gender? Gender { get; set; }
 
     public string? Nationality { get; set; }
+
+    [StringLength(100, MinimumLength = 3)]
+    [RegularExpression(@"^[a-z0-9-\u0600-\u06FF]+$", 
+        ErrorMessage = "Slug must be lowercase letters, numbers, hyphens, or Arabic characters only")]
+    public string? Slug { get; set; }
 
     public override string? PhoneNumber { get => base.PhoneNumber; set => base.PhoneNumber = value; }
 

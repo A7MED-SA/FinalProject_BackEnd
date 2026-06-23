@@ -2,6 +2,7 @@ using Athary.Application.Interfaces.Authentication;
 using Athary.Application.Interfaces.Category;
 using Athary.Application.Interfaces.Certificate;
 using Athary.Application.Interfaces.Communication;
+using Athary.Application.Interfaces.Contact;
 using Athary.Application.Interfaces.Courses;
 using Athary.Application.Interfaces.Commerce;
 using Athary.Application.Interfaces.Admin;
@@ -11,6 +12,7 @@ using Athary.Application.Interfaces.LiveSession;
 using Athary.Application.Interfaces.Media;
 using Athary.Application.Interfaces.Notification;
 using Athary.Application.Interfaces.Profile;
+using Athary.Application.Interfaces.Public;
 using Athary.Application.Interfaces.Review;
 using Athary.Application.Interfaces.VideoComment;
 using Athary.Application.Interfaces.Wishlist;
@@ -30,7 +32,10 @@ using Athary.Infrastructure.Services.Dashboard;
 using Athary.Infrastructure.Services.InstructorRequests;
 using Athary.Infrastructure.Services.LiveSession;
 using Athary.Infrastructure.Services.Media;
+using Athary.Infrastructure.Services.Notification;
 using Athary.Infrastructure.Services.Profile;
+using Athary.Infrastructure.Services.Public;
+using Athary.Infrastructure.Services.Contact;
 using Athary.Infrastructure.Services.Review;
 using Athary.Infrastructure.Services.VideoComment;
 using Athary.Infrastructure.Services.Wishlist;
@@ -132,6 +137,17 @@ public static class DependencyInjection
         services.AddScoped<IStreamingProvider, DefaultStreamingProvider>();
         services.AddScoped<ILiveSessionService, LiveSessionService>();
         services.AddScoped<ILiveAttendanceService, LiveAttendanceService>();
+
+        // Public Services (Backend Modifications)
+        services.AddScoped<IPublicService, PublicService>();
+        services.AddScoped<ITestimonialService, TestimonialService>();
+        services.AddScoped<ILegalPageService, LegalPageService>();
+
+        // Contact Services
+        services.AddScoped<IContactService, ContactService>();
+
+        // Notification Preference Services
+        services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
 
         // Commerce Services
         services.AddScoped<IPaymentGateway, MockPaymentGateway>();

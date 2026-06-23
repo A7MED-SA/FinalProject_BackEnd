@@ -1,21 +1,21 @@
 using Athary.Application.DTOs.Notification;
 using Athary.Application.Interfaces.Notification;
-using Athary.Domain.Entities;
 using Athary.Domain.Enums;
 using Athary.Domain.Interfaces;
 using Athary.Infrastructure.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using DomainNotification = Athary.Domain.Entities.Notification;
 
 namespace Athary.Infrastructure.Services.Communication;
 
 public sealed class NotificationService : INotificationService
 {
-    private readonly IRepository<Notification> _notificationRepo;
+    private readonly IRepository<DomainNotification> _notificationRepo;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IHubContext<NotificationHub> _hubContext;
 
     public NotificationService(
-        IRepository<Notification> notificationRepo,
+        IRepository<DomainNotification> notificationRepo,
         IUnitOfWork unitOfWork,
         IHubContext<NotificationHub> hubContext)
     {
@@ -33,7 +33,7 @@ public sealed class NotificationService : INotificationService
         string? icon = null,
         CancellationToken cancellationToken = default)
     {
-        var notification = new Notification
+        var notification = new DomainNotification
         {
             UserId = userId,
             Title = title,
@@ -78,8 +78,8 @@ public sealed class NotificationService : INotificationService
         CancellationToken cancellationToken = default)
     {
         var predicate = isRead.HasValue
-            ? (System.Linq.Expressions.Expression<Func<Notification, bool>>)(n => n.UserId == userId && n.IsRead == isRead.Value)
-            : (System.Linq.Expressions.Expression<Func<Notification, bool>>)(n => n.UserId == userId);
+            ? (System.Linq.Expressions.Expression<Func<DomainNotification, bool>>)(n => n.UserId == userId && n.IsRead == isRead.Value)
+            : (System.Linq.Expressions.Expression<Func<DomainNotification, bool>>)(n => n.UserId == userId);
 
         var notifications = await _notificationRepo.FindAsync(predicate, cancellationToken);
 
@@ -192,7 +192,7 @@ public sealed class NotificationService : INotificationService
             cancellationToken);
     }
 
-    private static NotificationDto MapToDto(Notification notification)
+    private static NotificationDto MapToDto(DomainNotification notification)
     {
         return new NotificationDto
         {

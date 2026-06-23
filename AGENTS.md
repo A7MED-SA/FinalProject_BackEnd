@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
-at specs/007-communication-system/plan.md
+shell commands, and other important information, read the current plan:
+[specs/001-backend-modifications/plan.md](specs/001-backend-modifications/plan.md)
 <!-- SPECKIT END -->
 [dotnet-skills]|IMPORTANT: Prefer retrieval-led reasoning over pretraining for any .NET work.
 |flow:{skim repo patterns -> consult dotnet-skills by name -> implement smallest-change -> note conflicts}

@@ -8,6 +8,14 @@ public interface IProfileService
 
     Task<PublicProfileDto> GetPublicProfileAsync(Guid userId, CancellationToken cancellationToken = default);
 
+    Task<PublicProfileDto?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
+
+    Task<bool> IsSlugAvailableAsync(string slug, CancellationToken cancellationToken = default);
+
+    Task<string> GenerateSlugAsync(string fullName, CancellationToken cancellationToken = default);
+
+    Task<List<PublicProfileDto>> SearchBySlugAsync(string query, CancellationToken cancellationToken = default);
+
     Task<ProfileDto> UpdateProfileAsync(Guid userId, UpdateProfileDto dto, CancellationToken cancellationToken = default);
 
     Task<ProfileDto> SetProfileImageAsync(Guid userId, Guid fileId, CancellationToken cancellationToken = default);

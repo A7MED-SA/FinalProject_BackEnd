@@ -95,6 +95,12 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
     public DbSet<CourseEditRequest> CourseEditRequests { get; set; }
     public DbSet<SystemSetting> SystemSettings { get; set; }
 
+    // New Entities (Backend Modifications)
+    public DbSet<Testimonial> Testimonials { get; set; }
+    public DbSet<NotificationPreference> NotificationPreferences { get; set; }
+    public DbSet<ContactMessage> ContactMessages { get; set; }
+    public DbSet<LegalPage> LegalPages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -779,6 +785,53 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
         modelBuilder.Entity<ContentProgress>()
             .HasIndex(cp => new { cp.EnrollmentId, cp.ContentType, cp.ContentId })
             .IsUnique();
+
+        // Testimonial Relationships
+        modelBuilder.Entity<Testimonial>()
+            .HasOne(t => t.User)
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Testimonial>()
+            .HasIndex(t => t.UserId)
+            .IsUnique();
+
+        modelBuilder.Entity<Testimonial>()
+            .HasIndex(t => new { t.IsApproved, t.DisplayOrder });
+
+        // NotificationPreference Relationships
+        modelBuilder.Entity<NotificationPreference>()
+            .HasOne(np => np.User)
+            .WithMany()
+            .HasForeignKey(np => np.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NotificationPreference>()
+            .HasIndex(np => np.UserId)
+            .IsUnique();
+
+        // ContactMessage Indexes
+        modelBuilder.Entity<ContactMessage>()
+            .HasIndex(cm => cm.IsRead)
+            .HasFilter("[IsRead] = 0");
+
+        // LegalPage Relationships
+        modelBuilder.Entity<LegalPage>()
+            .HasOne(lp => lp.LastUpdatedBy)
+            .WithMany()
+            .HasForeignKey(lp => lp.LastUpdatedById)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<LegalPage>()
+            .HasIndex(lp => lp.Type)
+            .IsUnique();
+
+        // User Slug Index
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Slug)
+            .IsUnique()
+            .HasFilter("[Slug] IS NOT NULL");
 
         // Soft Delete Query Filters
         modelBuilder.Entity<User>().HasQueryFilter(e => e.DeletedAt == null);
