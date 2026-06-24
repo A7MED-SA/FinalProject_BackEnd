@@ -256,17 +256,19 @@ public sealed class ProfileService : IProfileService
 
     public async Task<PhoneDto> AddPhoneAsync(Guid userId, AddPhoneDto dto, CancellationToken cancellationToken = default)
     {
-        var user = await _context.Users
-            .Include(u => u.UserPhones)
-            .FirstOrDefaultAsync(u => u.Id == userId && u.DeletedAt == null, cancellationToken)
+        var user = await _userRepo.GetByIdAsync(userId, cancellationToken)
             ?? throw new KeyNotFoundException("User not found");
 
-        if (user.UserPhones.Any(p => p.PhoneNumber == dto.PhoneNumber))
+        var existingPhones = await _context.UserPhones
+            .Where(p => p.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        if (existingPhones.Any(p => p.PhoneNumber == dto.PhoneNumber))
             throw new InvalidOperationException("Phone number already exists");
 
         if (dto.IsDefault)
         {
-            foreach (var phone in user.UserPhones)
+            foreach (var phone in existingPhones)
                 phone.IsDefault = false;
         }
 
@@ -275,12 +277,12 @@ public sealed class ProfileService : IProfileService
             UserId = userId,
             PhoneNumber = dto.PhoneNumber,
             Type = dto.Type,
-            IsDefault = dto.IsDefault || !user.UserPhones.Any(),
+            IsDefault = dto.IsDefault || !existingPhones.Any(),
             IsVerified = false,
             CreatedAt = DateTime.UtcNow
         };
 
-        user.UserPhones.Add(userPhone);
+        _context.UserPhones.Add(userPhone);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Phone added for user {UserId}: {PhoneNumber}", userId, dto.PhoneNumber);
@@ -331,14 +333,16 @@ public sealed class ProfileService : IProfileService
 
     public async Task<AddressDto> AddAddressAsync(Guid userId, AddAddressDto dto, CancellationToken cancellationToken = default)
     {
-        var user = await _context.Users
-            .Include(u => u.Addresses.Where(a => a.DeletedAt == null))
-            .FirstOrDefaultAsync(u => u.Id == userId && u.DeletedAt == null, cancellationToken)
+        var user = await _userRepo.GetByIdAsync(userId, cancellationToken)
             ?? throw new KeyNotFoundException("User not found");
+
+        var existingAddresses = await _context.Addresses
+            .Where(a => a.UserId == userId && a.DeletedAt == null)
+            .ToListAsync(cancellationToken);
 
         if (dto.IsDefault)
         {
-            foreach (var addr in user.Addresses)
+            foreach (var addr in existingAddresses)
                 addr.IsDefault = false;
         }
 
@@ -353,11 +357,11 @@ public sealed class ProfileService : IProfileService
             PostalCode = dto.PostalCode,
             Country = dto.Country,
             ContactPhone = dto.ContactPhone,
-            IsDefault = dto.IsDefault || !user.Addresses.Any(),
+            IsDefault = dto.IsDefault || !existingAddresses.Any(),
             CreatedAt = DateTime.UtcNow
         };
 
-        user.Addresses.Add(address);
+        _context.Addresses.Add(address);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Address added for user {UserId}", userId);
