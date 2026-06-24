@@ -45,6 +45,7 @@ public class ExceptionMiddleware
                 statusCode = HttpStatusCode.Forbidden;
                 message = exception.Message;
                 break;
+            case ArgumentException:
             case InvalidOperationException:
                 statusCode = HttpStatusCode.BadRequest;
                 message = exception.Message;
